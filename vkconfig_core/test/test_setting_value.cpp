@@ -68,25 +68,25 @@ TEST(test_setting_value, bool) {
 }
 
 TEST(test_setting_value, remove_done) {
-    SettingValue value;
-    value.push_back("string");
+    SettingValue default_value;
+    default_value.push_back("string");
 
-    EXPECT_EQ(true, value.remove("string"));
-    EXPECT_TRUE(value.empty());
+    EXPECT_EQ(true, default_value.remove("string"));
+    EXPECT_TRUE(default_value.empty());
 }
 
 TEST(test_setting_value, remove_fail) {
-    SettingValue value;
-    value.push_back("stringA");
-    value.push_back("stringB");
+    SettingValue default_value;
+    default_value.push_back("stringA");
+    default_value.push_back("stringB");
 
-    EXPECT_EQ(false, value.remove("string"));
-    EXPECT_EQ(2, value.size());
+    EXPECT_EQ(false, default_value.remove("string"));
+    EXPECT_EQ(2, default_value.size());
 }
 
 TEST(test_setting_value, remove_fail_empty) {
-    SettingValue value;
+    SettingValue default_value;
 
-    EXPECT_EQ(false, value.remove("string"));
-    EXPECT_TRUE(value.empty());
+    EXPECT_EQ(false, default_value.remove("string"));
+    EXPECT_TRUE(default_value.empty());
 }

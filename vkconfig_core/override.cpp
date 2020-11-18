@@ -110,7 +110,7 @@ static bool WriteLayerOverride(const Environment& environment, const std::vector
     }
 
     QJsonObject root;
-    root.insert("file_format_version", QJsonValue("1.1.2"));
+    root.insert("file_format_version", "1.1.2");
     root.insert("layer", layer);
     QJsonDocument doc(root);
 
@@ -163,9 +163,9 @@ static bool WriteLayerSettings(const Environment& environment, const std::vector
 
             if (layer->name == "lunarg_gfxreconstruct" && layer->_api_version < Version("1.2.148")) {
                 stream << "lunarg_gfxrecon"
-                       << "." << setting.key << " = " << setting.value << "\n";
+                       << "." << setting.key << " = " << setting.default_value << "\n";
             } else {
-                stream << lc_layer_name << "." << setting.key << " = " << setting.value << "\n";
+                stream << lc_layer_name << "." << setting.key << " = " << setting.default_value << "\n";
             }
         }
     }

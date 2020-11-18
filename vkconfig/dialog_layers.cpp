@@ -301,20 +301,20 @@ void LayersDialog::resizeEvent(QResizeEvent *event) {
 }
 
 void LayersDialog::on_pushButtonResetLayers_clicked() {
-    configuration._preset = ValidationPresetNone;
     selected_available_layer_name.clear();
     selected_sorted_layer_name.clear();
     ui->layerTreeSorted->clear();
 
     for (auto it = parameters.begin(); it != parameters.end(); ++it) {
         it->state = LAYER_STATE_APPLICATION_CONTROLLED;
-        it->overridden_rank = Parameter::UNRANKED;
+        it->overridden_rank = Parameter::NO_RANK;
+        it->preset_index = Parameter::NO_PRESET;
 
         const LayerSettingsDefaults *defaults = Configurator::Get().FindLayerSettings(it->name);
         if (defaults) {
             it->settings = defaults->settings;
 
-            if (it->name == "VK_LAYER_KHRONOS_validation") configuration._preset = ValidationPresetStandard;
+            if (it->name == "VK_LAYER_KHRONOS_validation") it->preset_index = Parameter::NO_PRESET;
         }
     }
 
@@ -482,7 +482,7 @@ void LayersDialog::layerUseChanged(QTreeWidgetItem *item, int selection) {
     }
 
     current_parameter->state = layer_state;
-    current_parameter->overridden_rank = Parameter::UNRANKED;
+    current_parameter->overridden_rank = Parameter::NO_RANK;
 
     OrderParameter(parameters, Configurator::Get().layers.available_layers);
 
@@ -561,8 +561,7 @@ void LayersDialog::BuildParameters() {
         const LayerSettingsDefaults *defaults = configurator.FindLayerSettings(layer.name);
         if (defaults) {
             parameter.settings = defaults->settings;
-
-            if (layer.name == "VK_LAYER_KHRONOS_validation") configuration._preset = ValidationPresetStandard;
+            parameter.preset_index = Parameter::NO_PRESET;
         }
 
         parameters.push_back(parameter);

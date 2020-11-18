@@ -29,17 +29,15 @@
 #include <QJsonObject>
 
 struct LayerSetting {
-    QString key;                   // Name of the setting the layer looks for (programatic variable name)
-    QString label;                 // Short name to prompt end user
-    QString description;           // Human version, describes the setting
-    SettingType type;              // The data type
-    QVariant max_value;            // For range based
-    QVariant min_value;            // For range based
-    QStringList exclusive_values;  // List of exclusive items
-    QStringList exclusive_labels;  // List of exclusive item prompts
-    QStringList inclusive_values;  // List of non-exclusive items (more than one item can be selected)
-    QStringList inclusive_labels;  // List of non-exclusive item prompts (more than one item can be selected)
-    QString value;                 // Default value as a string
+    QString key;          // Name of the setting the layer looks for (programatic variable name)
+    QString label;        // Short name to prompt end user
+    QString description;  // Human version, describes the setting
+    SettingType type;     // The data type
+    QVariant max_value;   // For range based
+    QVariant min_value;   // For range based
+    QStringList enum_values;
+    QStringList enum_labels;
+    QString default_value;  // Default value as a string
 };
 
 LayerSetting* FindSetting(std::vector<LayerSetting>& settings, const char* key);

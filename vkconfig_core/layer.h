@@ -35,8 +35,8 @@
 
 #include <vector>
 
-void RemoveString(QString& delimited_string, QString value);
-void AppendString(QString& delimited_string, QString value);
+void RemoveString(QString& delimited_string, QString default_value);
+void AppendString(QString& delimited_string, QString default_value);
 
 class Layer {
    public:
@@ -56,6 +56,8 @@ class Layer {
     Version _api_version;
     QString _implementation_version;
     QString _description;
+
+    std::vector<LayerSetting> settings;
 
     QString _layer_path;  // Actual path to the folder that contains the layer (this is important!)
     LayerType _layer_type;

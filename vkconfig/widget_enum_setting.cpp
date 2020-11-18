@@ -31,9 +31,9 @@ EnumSettingWidget::EnumSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_
     item->setToolTip(0, layer_setting.description);
 
     int selection = 0;
-    for (int i = 0; i < layer_setting.exclusive_labels.size(); i++) {
-        this->addItem(layer_setting.exclusive_labels[i]);
-        if (layer_setting.exclusive_values[i] == layer_setting.value) selection = i;
+    for (int i = 0; i < layer_setting.enum_labels.size(); i++) {
+        this->addItem(layer_setting.enum_labels[i]);
+        if (layer_setting.enum_values[i] == layer_setting.default_value) selection = i;
     }
 
     setCurrentIndex(selection);
@@ -42,6 +42,6 @@ EnumSettingWidget::EnumSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_
 }
 
 void EnumSettingWidget::indexChanged(int index) {
-    _layer_setting.value = _layer_setting.exclusive_values[index];
+    _layer_setting.default_value = _layer_setting.enum_values[index];
     emit itemChanged();
 }

@@ -92,7 +92,6 @@
                     "type": "multi_enum"
                 }
             }
-        },
-        "preset": 5
+        }
     }
 }

@@ -33,8 +33,8 @@ class SettingValue {
     bool Save(const char* key, const SettingType type, QJsonObject& json_object) const;
 
     template <typename T>
-    void push_back(const T& value) {
-        this->data.push_back(value);
+    void push_back(const T& default_value) {
+        this->data.push_back(default_value);
     }
 
     bool empty() const { return this->data.empty(); }
@@ -42,7 +42,7 @@ class SettingValue {
     std::size_t size() const { return this->data.size(); }
 
     template <typename T>
-    bool remove(const T& value) {
+    bool remove(const T& default_value) {
         if (this->data.empty()) return false;
 
         std::vector<QVariant> new_data;
@@ -50,7 +50,7 @@ class SettingValue {
 
         bool result = false;
         for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
-            if (this->data[i] == value) {
+            if (this->data[i] == default_value) {
                 result = true;
                 continue;
             }
@@ -64,9 +64,9 @@ class SettingValue {
     }
 
     template <typename T>
-    bool has(const T& value) {
+    bool has(const T& default_value) {
         for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
-            if (this->data[i] == value) return true;
+            if (this->data[i] == default_value) return true;
         }
         return false;
     }

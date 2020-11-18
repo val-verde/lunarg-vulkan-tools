@@ -30,16 +30,16 @@ MultiEnumSettingWidget::MultiEnumSettingWidget(LayerSetting& layer_setting, QStr
     assert(&layer_setting);
     assert(!setting_name.isEmpty());
 
-    if (_layer_setting.value.contains(setting_name)) this->setChecked(true);
+    if (_layer_setting.default_value.contains(setting_name)) this->setChecked(true);
 
     connect(this, SIGNAL(clicked(bool)), this, SLOT(itemChecked(bool)));
 }
 
 void MultiEnumSettingWidget::itemChecked(bool checked) {
     if (checked)
-        AppendString(_layer_setting.value, _setting_name);
+        AppendString(_layer_setting.default_value, _setting_name);
     else
-        RemoveString(_layer_setting.value, _setting_name);
+        RemoveString(_layer_setting.default_value, _setting_name);
 
     emit itemChanged();
 }

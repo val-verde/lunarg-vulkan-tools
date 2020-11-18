@@ -63,3 +63,6 @@ class Version {
     uint32_t _minor;
     uint32_t _patch;
 };
+
+#define VKC_ASSERT_VERSION(expression, required_version, current_version) \
+    (assert(((expression) && (current_version >= required_version)) || (current_version < required_version)))

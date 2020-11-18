@@ -35,15 +35,24 @@
 #include <cstdio>
 #include <algorithm>
 
-Configuration::Configuration() : name("New Configuration"), _preset(ValidationPresetNone) {}
+Configuration::Configuration() : name("New Configuration") {}
 
-static Version GetConfigurationVersion(const QJsonValue& value) {
+static Version GetConfigurationVersion(const QJsonValue& default_value) {
     if (SUPPORT_VKCONFIG_2_0_1) {
-        return Version(value == QJsonValue::Undefined ? "2.0.1" : value.toString().toUtf8().constData());
+        return Version(default_value == QJsonValue::Undefined ? "2.0.1" : default_value.toString().toUtf8().constData());
     } else {
-        assert(value != QJsonValue::Undefined);
-        return Version(value.toString().toUtf8().constData());
+        assert(default_value != QJsonValue::Undefined);
+        return Version(default_value.toString().toUtf8().constData());
     }
+}
+
+static int GetPresetIndex(const QJsonValue& preset_index, const QJsonValue& legacy_preset_index) {
+    if (preset_index != QJsonValue::Undefined)
+        return preset_index.toInt();
+    else if (legacy_preset_index != QJsonValue::Undefined)
+        return legacy_preset_index.toInt();
+    else
+        return Parameter::NO_PRESET;
 }
 
 bool Configuration::Load(const QString& full_path) {
@@ -113,8 +122,8 @@ bool Configuration::Load(const QString& full_path) {
         parameters.push_back(parameter);
     }
 
-    const QJsonValue& preset_index = configuration_entry_object.value("preset");
-    _preset = static_cast<ValidationPreset>(preset_index.toInt());
+    const QJsonValue& json_legacy_preset = configuration_entry_object.value("preset");
+    VKC_ASSERT_VERSION(SUPPORT_VKCONFIG_2_0_2 && json_legacy_preset == QJsonValue::Undefined, Version("2.0.3"), version);
 
     const QJsonValue& editor_state = configuration_entry_object.value("editor_state");
     _setting_tree_state = editor_state.toVariant().toByteArray();
@@ -147,18 +156,22 @@ bool Configuration::Load(const QString& full_path) {
         const QJsonValue& layer_value = layer_objects.value(layers[layer_index]);
         const QJsonObject& layer_object = layer_value.toObject();
         const QJsonValue& layer_rank = layer_object.value("layer_rank");
+        const QJsonValue& json_preset = layer_object.value("preset_index");
 
-        const int overridden_rank = layer_rank == QJsonValue::Undefined ? Parameter::UNRANKED : layer_rank.toInt();
+        const int overridden_rank = layer_rank == QJsonValue::Undefined ? Parameter::NO_RANK : layer_rank.toInt();
+        const int preset_index = GetPresetIndex(json_preset, json_legacy_preset);
 
         auto parameter = FindParameter(parameters, layers[layer_index]);
         if (parameter != parameters.end()) {
             parameter->overridden_rank = overridden_rank;
+            parameter->preset_index = preset_index;
             LoadSettings(layer_object, *parameter);
         } else {
             Parameter parameter;
             parameter.name = layers[layer_index];
             parameter.state = LAYER_STATE_OVERRIDDEN;
             parameter.overridden_rank = overridden_rank;
+            parameter.preset_index = preset_index;
             LoadSettings(layer_object, parameter);
             parameters.push_back(parameter);
         }
@@ -193,6 +206,7 @@ bool Configuration::Save(const QString& full_path) const {
         QJsonObject json_settings;
         // Rank goes in here with settings
         json_settings.insert("layer_rank", parameter.overridden_rank);
+        json_settings.insert("preset_index", parameter.preset_index);
 
         const bool result = SaveSettings(parameter, json_settings);
         assert(result);
@@ -204,7 +218,6 @@ bool Configuration::Save(const QString& full_path) const {
     json_configuration.insert("name", name);
     json_configuration.insert("blacklisted_layers", excluded_list);
     json_configuration.insert("description", _description);
-    json_configuration.insert("preset", _preset);
     json_configuration.insert("editor_state", _setting_tree_state.data());
     json_configuration.insert("layer_options", overridden_list);
     root.insert("configuration", json_configuration);

@@ -25,7 +25,6 @@
 
 #include "dialog_custom_paths.h"
 
-#include "../vkconfig_core/version.h"
 #include "../vkconfig_core/util.h"
 #include "../vkconfig_core/path.h"
 #include "../vkconfig_core/override.h"
@@ -43,66 +42,39 @@
 #include <cstdio>
 #include <algorithm>
 
-struct DefaultConfiguration {
-    const char *name;
-    const char *required_layer;
-    Version required_api_version;
-    const char *preset_label;
-    ValidationPreset preset;
-};
-
-static const DefaultConfiguration default_configurations[] = {
-    {"Validation - Standard", "VK_LAYER_KHRONOS_validation", Version("1.0.0"), "Standard", ValidationPresetStandard},
-    {"Validation - Reduced-Overhead", "VK_LAYER_KHRONOS_validation", Version("1.0.0"), "Reduced-Overhead",
-     ValidationPresetReducedOverhead},
-    {"Validation - Best Practices", "VK_LAYER_KHRONOS_validation", Version("1.1.126"), "Best Practices",
-     ValidationPresetBestPractices},
-    {"Validation - Synchronization (Alpha)", "VK_LAYER_KHRONOS_validation", Version("1.2.147"), "Synchronization (Alpha)",
-     ValidationPresetSynchronization},
-#if VKC_PLATFORM != VKC_PLATFORM_MACOS
-    {"Validation - GPU-Assisted", "VK_LAYER_KHRONOS_validation", Version("1.1.126"), "GPU-Assisted", ValidationPresetGPUAssisted},
-    {"Validation - Shader Printf", "VK_LAYER_KHRONOS_validation", Version("1.1.126"), "Debug Printf", ValidationPresetDebugPrintf},
-    {"Frame Capture - First two frames", "VK_LAYER_LUNARG_gfxreconstruct", Version("1.2.147"), "", ValidationPresetNone},
-    {"Frame Capture - Range (F5 to start and to stop)", "VK_LAYER_LUNARG_gfxreconstruct", Version("1.2.147"), "",
-     ValidationPresetNone},
-#endif
-    {"API dump", "VK_LAYER_LUNARG_api_dump", Version("1.1.126"), "", ValidationPresetNone}};
-
-ValidationPreset GetValidationPreset(const QString &configuration_name) {
+int GetValidationPresetIndex(const QString &configuration_name) {
     assert(!configuration_name.isEmpty());
 
     for (std::size_t i = 0, n = countof(default_configurations); i < n; ++i) {
         if (default_configurations[i].name != configuration_name) continue;
-        return default_configurations[i].preset;
+        return default_configurations[i].preset_index;
     }
 
-    return ValidationPresetNone;  // Not found
+    return Parameter::NO_PRESET;  // Not found
 }
 
-static const DefaultConfiguration *FindDefaultConfiguration(ValidationPreset preset) {
-    assert(preset >= ValidationPresetFirst && preset <= ValidationPresetLast);
-
+static const DefaultConfiguration *FindDefaultConfiguration(int preset_index) {
     for (std::size_t i = 0, n = countof(default_configurations); i < n; ++i) {
-        if (default_configurations[i].preset != preset) continue;
+        if (default_configurations[i].preset_index != preset_index) continue;
         return &default_configurations[i];
     }
 
     return nullptr;  // Not found
 }
 
-const char *Configurator::GetValidationPresetName(ValidationPreset preset) const {
+const char *Configurator::GetValidationPresetName(int preset_index) const {
     // 0 is user defined, there is no file for that
-    assert(preset > ValidationPresetUserDefined);
+    assert(preset_index > Parameter::NO_PRESET);
 
-    const DefaultConfiguration *configuration = FindDefaultConfiguration(preset);
+    const DefaultConfiguration *configuration = FindDefaultConfiguration(preset_index);
     if (configuration) return configuration->name;
 
     assert(0);
     return nullptr;
 }
 
-const char *Configurator::GetValidationPresetLabel(ValidationPreset preset) const {
-    const DefaultConfiguration *configuration = FindDefaultConfiguration(preset);
+const char *Configurator::GetValidationPresetLabel(int preset_index) const {
+    const DefaultConfiguration *configuration = FindDefaultConfiguration(preset_index);
     if (configuration) return configuration->preset_label;
 
     assert(0);
@@ -289,7 +261,7 @@ void Configurator::LoadAllConfigurations() {
 
         for (std::size_t i = 0, n = countof(default_configurations); i < n; ++i) {
             // Search the list of loaded configurations
-            const QString file = QString(":/resourcefiles/") + default_configurations[i].name + ".json";
+            const QString file = QString(":/resourcefiles/configurations/") + default_configurations[i].name + ".json";
 
             Configuration configuration;
             const bool result = configuration.Load(file);
@@ -331,7 +303,8 @@ void Configurator::LoadDefaultLayerSettings() {
 
     // Load the main object into the json document
     QFile file(":/resourcefiles/layer_info.json");
-    file.open(QFile::ReadOnly);
+    const bool result = file.open(QFile::ReadOnly);
+    assert(result);
     QString data = file.readAll();
     file.close();
 
@@ -351,7 +324,7 @@ void Configurator::LoadDefaultLayerSettings() {
     // and let the layers parse the json data to create their own list
     // of settings.
     QStringList layers_with_settings = layers_options_object.keys();
-    for (int i = 0; i < layers_with_settings.size(); i++) {  // For each setting
+    for (int i = 0, n = layers_with_settings.size(); i < n; ++i) {  // For each setting
         LayerSettingsDefaults settings_defaults;
         settings_defaults.layer_name = layers_with_settings[i];
 

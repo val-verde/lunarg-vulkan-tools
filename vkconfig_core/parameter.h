@@ -49,15 +49,18 @@ enum ParameterRank {
 };
 
 struct Parameter {
-    static const int UNRANKED = -1;
+    static const int NO_RANK = -1;
+    static const int NO_PRESET = 0;
 
-    Parameter() : state(LAYER_STATE_APPLICATION_CONTROLLED), overridden_rank(UNRANKED) {}
-    Parameter(const QString& name, const LayerState state) : name(name), state(state), overridden_rank(UNRANKED) {}
+    Parameter() : state(LAYER_STATE_APPLICATION_CONTROLLED), overridden_rank(NO_RANK), preset_index(NO_PRESET) {}
+    Parameter(const QString& name, const LayerState state)
+        : name(name), state(state), overridden_rank(NO_RANK), preset_index(NO_PRESET) {}
 
     QString name;
     LayerState state;
     std::vector<LayerSetting> settings;
     int overridden_rank;
+    int preset_index;  // Settings preset, 0 = none or user defined
 };
 
 ParameterRank GetParameterOrdering(const std::vector<Layer>& available_layers, const Parameter& parameter);
