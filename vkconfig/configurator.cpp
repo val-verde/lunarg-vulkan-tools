@@ -36,7 +36,6 @@
 #include <QTextStream>
 #include <QMessageBox>
 #include <QCheckBox>
-#include <QJsonArray>
 
 #include <cassert>
 #include <cstdio>

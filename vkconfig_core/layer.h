@@ -26,6 +26,7 @@
 #pragma once
 
 #include "../vkconfig_core/layer_setting.h"
+#include "../vkconfig_core/layer_preset.h"
 #include "../vkconfig_core/version.h"
 
 #include <QObject>
@@ -58,6 +59,7 @@ class Layer {
     QString _description;
 
     std::vector<LayerSetting> settings;
+    std::vector<LayerPreset> presets;
 
     QString _layer_path;  // Actual path to the folder that contains the layer (this is important!)
     LayerType _layer_type;

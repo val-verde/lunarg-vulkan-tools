@@ -20,6 +20,9 @@
 
 #pragma once
 
+#include <vector>
+#include <string>
+
 #define VKC_PLATFORM_WINDOWS 0
 #define VKC_PLATFORM_LINUX 1
 #define VKC_PLATFORM_MACOS 2
@@ -41,6 +44,10 @@ enum PlatformFlags {
     PLATFORM_MACOS_BIT = (1 << PLATFORM_MACOS),
     PLATFORM_ALL_BIT = PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT
 };
+
+int GetPlatformFlags(const std::vector<std::string>& platform_strings);
+const char* GetToken(PlatformType type);
+PlatformType GetPlatformType(const char* token);
 
 enum StatusType {
     STATUS_STABLE = 0,

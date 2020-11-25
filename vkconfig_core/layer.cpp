@@ -23,6 +23,7 @@
 #include "platform.h"
 #include "util.h"
 #include "path.h"
+#include "json.h"
 
 #include <QFile>
 #include <QMessageBox>
@@ -119,39 +120,23 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
 
     // Populate key items about the layer
     const QJsonObject& json_root_object = json_document.object();
-    const QJsonValue& json_file_format_value = json_root_object.value("file_format_version");
-    assert(json_file_format_value != QJsonValue::Undefined);
-    _file_format_version = Version(json_file_format_value.toString());
+    _file_format_version = Version(ReadStringValue(json_root_object, "file_format_version").c_str());
 
-    const QJsonValue& json_layer_value = json_root_object.value("layer");
-    assert(json_layer_value != QJsonValue::Undefined);
-    const QJsonObject& json_layer_object = json_layer_value.toObject();
+    const QJsonObject& json_layer_object = ReadObject(json_root_object, "layer");
 
-    const QJsonValue& json_name_value = json_layer_object.value("name");
-    assert(json_name_value != QJsonValue::Undefined);
-    name = json_name_value.toString();
-
-    const QJsonValue& json_type_value = json_layer_object.value("type");
-    assert(json_type_value != QJsonValue::Undefined);
-    _type = json_type_value.toString();
+    name = ReadStringValue(json_layer_object, "name").c_str();
+    _type = ReadStringValue(json_layer_object, "type").c_str();
 
     const QJsonValue& json_library_path_value = json_layer_object.value("library_path");
     assert((json_library_path_value != QJsonValue::Undefined && name != "VK_LAYER_LUNARG_override") ||
            json_library_path_value == QJsonValue::Undefined && name == "VK_LAYER_LUNARG_override");
     _library_path = json_library_path_value.toString();
 
-    const QJsonValue& json_api_version_value = json_layer_object.value("api_version");
-    assert(json_api_version_value != QJsonValue::Undefined);
-    _api_version = Version(json_api_version_value.toString());
+    _api_version = Version(ReadStringValue(json_layer_object, "api_version").c_str());
+    _implementation_version = ReadStringValue(json_layer_object, "implementation_version").c_str();
+    _description = ReadStringValue(json_layer_object, "description").c_str();
 
-    const QJsonValue& json_implementation_version_value = json_layer_object.value("implementation_version");
-    assert(json_implementation_version_value != QJsonValue::Undefined);
-    _implementation_version = json_implementation_version_value.toString();
-
-    const QJsonValue& json_description_value = json_layer_object.value("description");
-    assert(json_description_value != QJsonValue::Undefined);
-    _description = json_description_value.toString();
-
+    // Load settings
     const QJsonValue& json_settings_value = json_layer_object.value("settings");
     VKC_ASSERT_VERSION(SUPPORT_VKCONFIG_2_0_2 && json_settings_value != QJsonValue::Undefined, Version("2.0.3"),
                        _file_format_version);
@@ -163,21 +148,11 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
 
             LayerSetting setting;
 
-            const QJsonValue& json_value_key = json_setting.value("key");
-            assert(json_value_key != QJsonValue::Undefined);
-            setting.key = json_value_key.toString();
-
-            const QJsonValue& json_value_name = json_setting.value("name");
-            assert(json_value_name != QJsonValue::Undefined);
-            setting.label = json_value_name.toString();
-
-            const QJsonValue& json_value_description = json_setting.value("description");
-            assert(json_value_description != QJsonValue::Undefined);
-            setting.description = json_value_description.toString();
-
-            const QJsonValue& json_value_type = json_setting.value("type");
-            assert(json_value_type != QJsonValue::Undefined);
-            setting.type = GetSettingType(json_value_type.toString().toUtf8().constData());
+            setting.key = ReadStringValue(json_setting, "key").c_str();
+            setting.label = ReadStringValue(json_setting, "label").c_str();
+            setting.description = ReadStringValue(json_setting, "description").c_str();
+            setting.type = GetSettingType(ReadStringValue(json_setting, "type").c_str());
+            setting.default_value = ReadString(json_setting, "default").c_str();
 
             switch (setting.type) {
                 case SETTING_EXCLUSIVE_LIST:
@@ -218,18 +193,41 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
                     break;
             }
 
-            const QJsonValue& json_value_default = json_setting.value("default");
-            if (json_value_default.isArray()) {
-                const QJsonArray& array = json_value_default.toArray();
-                for (int a = 0; a < array.size(); a++) {
-                    setting.default_value += array[a].toString();
-                    if (a != array.size() - 1) setting.default_value += ",";
-                }
-
-            } else
-                setting.default_value = json_value_default.toString();
-
             settings.push_back(setting);
+        }
+    }
+
+    // Load presets
+    const QJsonValue& json_presets_value = json_layer_object.value("presets");
+    VKC_ASSERT_VERSION(SUPPORT_VKCONFIG_2_0_2 && json_presets_value != QJsonValue::Undefined, Version("2.0.3"),
+                       _file_format_version);
+    if (json_presets_value != QJsonValue::Undefined) {
+        assert(json_presets_value.isArray());
+        const QJsonArray& json_preset_array = json_presets_value.toArray();
+        for (int preset_index = 0, preset_count = json_preset_array.size(); preset_index < preset_count; ++preset_index) {
+            const QJsonObject& json_preset_object = json_preset_array[preset_index].toObject();
+
+            LayerPreset preset;
+
+            preset.preset_index = ReadIntValue(json_preset_object, "preset-index");
+            preset.label = ReadStringValue(json_preset_object, "label");
+            preset.description = ReadStringValue(json_preset_object, "description");
+            preset.platform_flags = GetPlatformFlags(ReadStringArray(json_preset_object, "platforms"));
+            preset.status_type = GetStatusType(ReadStringValue(json_preset_object, "status").c_str());
+            preset.editor_state = ReadStringValue(json_preset_object, "editor_state");
+
+            const QJsonArray& json_setting_array = ReadArray(json_preset_object, "settings");
+            for (int setting_index = 0, setting_count = json_preset_array.size(); setting_index < setting_count; ++setting_index) {
+                const QJsonObject& json_setting_object = json_setting_array[setting_index].toObject();
+
+                LayerPresetValue setting_value;
+                setting_value.key = ReadStringValue(json_setting_object, "key");
+                setting_value.value = ReadString(json_setting_object, "values");
+
+                preset.setting_values.push_back(setting_value);
+            }
+
+            presets.push_back(preset);
         }
     }
 

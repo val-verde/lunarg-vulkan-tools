@@ -55,7 +55,7 @@
                 "label": "Standard",
                 "description": "This configuration is a good default validation setting and should serve most needs most of the time.",
                 "platforms": [ "windows", "linux", "mac" ],
-                "status": "STABLE",
+                "status": "stable",
                 "editor_state": "01110111111111111111111001011111111110",
                 "settings": [
                     {
@@ -73,7 +73,7 @@
                 "label": "Reduced-Overhead",
                 "description": "This configuration disables some of the checks of Standard Validation in the interest of performance.",
                 "platforms": [ "windows", "linux", "mac" ],
-                "status": "STABLE",
+                "status": "stable",
                 "editor_state": "01110111111111111111111001111111111110",
                 "settings": [
                     {
@@ -101,7 +101,7 @@
                 "label": "Best Practices",
                 "description": "This configuration provides access to the Vulkan Best Practices check. Provides warnings about potential API misuse.",
                 "platforms": [ "windows", "linux", "mac" ],
-                "status": "STABLE",
+                "status": "stable",
                 "editor_state": "01110111111111111111111001111111111110",
                 "settings": [
                     {
@@ -127,7 +127,7 @@
                 "label": "Synchronization",
                 "description": "This configuration is a good default validation setting and should serve most needs most of the time.",
                 "platforms": [ "windows", "linux", "mac" ],
-                "status": "ALPHA",
+                "status": "alpha",
                 "editor_state": "01110011111111111011110001111111111110",
                 "settings": [
                     {
@@ -152,7 +152,7 @@
                 "label": "GPU-Assisted",
                 "description": "Provides easy access to gpu-assisted validation tools.",
                 "platforms": [ "windows", "linux" ],
-                "status": "STABLE",
+                "status": "stable",
                 "editor_state": "01110111111111111111111001111111111110",
                 "settings": [
                     {
@@ -179,7 +179,7 @@
                 "label": "Shader Printf",
                 "description": "Provides easy access to gpu-assisted validation tools.",
                 "platforms": [ "windows", "linux" ],
-                "status": "STABLE",
+                "status": "stable",
                 "editor_state": "01110111111111111111111001111111111110",
                 "settings": [
                     {

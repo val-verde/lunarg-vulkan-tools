@@ -24,9 +24,24 @@
 
 #include <cstring>
 
+TEST(test_platform, platform_flags_all) {
+    std::vector<std::string> platform_strings;
+    for (std::size_t i = 0, n = PLATFORM_COUNT; i < n; ++i) {
+        const PlatformType platform_type = static_cast<PlatformType>(i);
+        platform_strings.push_back(GetToken(platform_type));
+    }
+
+    EXPECT_EQ(PLATFORM_ALL_BIT, GetPlatformFlags(platform_strings));
+}
+
+TEST(test_platform, platform_type) {
+    EXPECT_STREQ("linux", GetToken(PLATFORM_LINUX));
+    EXPECT_EQ(PLATFORM_LINUX, GetPlatformType("linux"));
+}
+
 TEST(test_platform, status_type) {
-    EXPECT_STREQ("STABLE", GetToken(STATUS_STABLE));
-    EXPECT_EQ(STATUS_STABLE, GetStatusType("STABLE"));
+    EXPECT_STREQ("stable", GetToken(STATUS_STABLE));
+    EXPECT_EQ(STATUS_STABLE, GetStatusType("stable"));
 }
 
 TEST(test_platform, platform_string) {

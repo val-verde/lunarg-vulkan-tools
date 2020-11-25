@@ -21,11 +21,42 @@
 #include "platform.h"
 #include "util.h"
 
+int GetPlatformFlags(const std::vector<std::string>& platform_strings) {
+    int result = 0;
+
+    for (std::size_t i = 0, n = platform_strings.size(); i < n; ++i) {
+        result |= 1 << GetPlatformType(platform_strings[i].c_str());
+    }
+
+    return result;
+}
+
+const char* GetToken(PlatformType type) {
+    static const char* table[] = {
+        "windows",  // PLATFORM_WINDOWS
+        "linux",    // PLATFORM_LINUX
+        "mac"       // PLATFORM_MACOS
+    };
+    static_assert(countof(table) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    return table[type];
+}
+
+PlatformType GetPlatformType(const char* token) {
+    for (std::size_t i = 0, n = PLATFORM_COUNT; i < n; ++i) {
+        const PlatformType platform_type = static_cast<PlatformType>(i);
+        if (strcmp(GetToken(platform_type), token) == 0) return platform_type;
+    }
+
+    assert(0);
+    return static_cast<PlatformType>(-1);
+}
+
 const char* GetToken(StatusType type) {
     static const char* table[] = {
-        "STABLE",  // STATUS_STABLE
-        "BETA",    // STATUS_BETA
-        "ALPHA"    // STATUS_ALPHA
+        "stable",  // STATUS_STABLE
+        "beta",    // STATUS_BETA
+        "alpha"    // STATUS_ALPHA
     };
     static_assert(countof(table) == STATUS_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
@@ -46,9 +77,9 @@ const char* GetPlatformString(PlatformString platform_string) {
     static const char* table[][PLATFORM_COUNT] = {
         {
             // PLATFORM_STRING_OS
-            "windows",  // PLATFORM_WINDOWS
-            "linux",    // PLATFORM_LINUX
-            "mac"       // PLATFORM_MACOS
+            GetToken(PLATFORM_WINDOWS),  // PLATFORM_WINDOWS
+            GetToken(PLATFORM_LINUX),    // PLATFORM_LINUX
+            GetToken(PLATFORM_MACOS)     // PLATFORM_MACOS
         },
         {
             // PLATFORM_STRING_APP_SUFFIX

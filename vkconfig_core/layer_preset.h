@@ -18,14 +18,27 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "layer_setting.h"
+#pragma once
 
-LayerSetting* FindSetting(std::vector<LayerSetting>& settings, const char* key) {
-    for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
-        if (settings[i].key == key) {
-            return &settings[i];
-        }
-    }
+#include "platform.h"
 
-    return nullptr;
-}
+#include <string>
+#include <vector>
+
+// TODO: replace by SettingValue
+struct LayerPresetValue {
+    std::string key;
+    std::string value;
+};
+
+struct LayerPreset {
+    int preset_index;
+    std::string label;
+    std::string description;
+    int platform_flags;
+    StatusType status_type;
+    std::string editor_state;
+    std::vector<LayerPresetValue> setting_values;
+};
+
+LayerPresetValue* FindSetting(LayerPreset& preset, const char* key);

@@ -18,12 +18,12 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "layer_setting.h"
+#include "layer_preset.h"
 
-LayerSetting* FindSetting(std::vector<LayerSetting>& settings, const char* key) {
-    for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
-        if (settings[i].key == key) {
-            return &settings[i];
+LayerPresetValue* FindSetting(LayerPreset& preset, const char* key) {
+    for (std::size_t i = 0, n = preset.setting_values.size(); i < n; ++i) {
+        if (preset.setting_values[i].key == key) {
+            return &preset.setting_values[i];
         }
     }
 
