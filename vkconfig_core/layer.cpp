@@ -31,6 +31,62 @@
 
 #include <cassert>
 
+enum LayerID {
+    LAYER_THIRD_PARTY = -1,
+    LAYER_KHRONOS_VALIDATION = 0,
+    LAYER_LUNARG_API_DUMP,
+    LAYER_LUNARG_DEVICE_SIMULATION,
+    LAYER_LUNARG_GFXRECONSTRUCT,
+    LAYER_LUNARG_MONITOR,
+    LAYER_LUNARG_SCREENSHOT,
+
+    LAYER_FIRST = LAYER_KHRONOS_VALIDATION,
+    LAYER_LAST = LAYER_LUNARG_SCREENSHOT
+};
+
+enum { LAYER_COUNT = LAYER_LAST - LAYER_FIRST + 1 };
+
+struct DefaultLayer {
+    LayerID id;
+    const char* name;
+    const char* file;
+};
+
+static const DefaultLayer default_layers[] = {
+    {LAYER_KHRONOS_VALIDATION, "VK_LAYER_KHRONOS_validation", "VkLayer_khronos_validation.json"},
+    {LAYER_LUNARG_API_DUMP, "VK_LAYER_LUNARG_api_dump", "VkLayer_api_dump.json"},
+    {LAYER_LUNARG_DEVICE_SIMULATION, "VK_LAYER_LUNARG_device_simulation", "VkLayer_device_simulation.json"},
+    {LAYER_LUNARG_GFXRECONSTRUCT, "VK_LAYER_LUNARG_gfxreconstruct", "VkLayer_gfxreconstruct.json"},
+    {LAYER_LUNARG_MONITOR, "VK_LAYER_LUNARG_monitor", "VkLayer_monitor.json"},
+    {LAYER_LUNARG_SCREENSHOT, "VK_LAYER_LUNARG_screenshot", "VkLayer_screenshot.json"}};
+static_assert(countof(default_layers) == LAYER_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+LayerID GetLayerID(const QString& name) {
+    assert(!name.isEmpty());
+
+    for (std::size_t i = 0, n = countof(default_layers); i < n; ++i) {
+        if (default_layers[i].name == name) return default_layers[i].id;
+    }
+
+    return LAYER_THIRD_PARTY;
+}
+
+// TODO: add latest, add all layer versions
+QString GetBuiltinFolder(const Version& version) {
+    if (version <= Version(1, 2, 154))
+        return "layers_1_2_154/";
+    else
+        return "layers_1_2_154/";
+    /*
+        if (version <= Version(1, 2, 148))
+            return "layers_1_2_148/";
+        else if (version == Version(1, 2, 154))
+            return "layers_1_2_154/";
+        else
+            return "layers_latest/";
+    */
+}
+
 // delimted string is a comma delimited string. If value is found remove it
 void RemoveString(QString& delimitedString, QString default_value) {
     // Well, it's not there now is it...
@@ -136,10 +192,21 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
     _implementation_version = ReadStringValue(json_layer_object, "implementation_version").c_str();
     _description = ReadStringValue(json_layer_object, "description").c_str();
 
-    // Load settings
+    // Load default layer json file if necessary
+    const LayerID layer_id = GetLayerID(name);
+    const bool is_missing_layer_data =
+        json_layer_object.value("settings") == QJsonValue::Undefined || json_layer_object.value("presets") == QJsonValue::Undefined;
+    const bool is_builtin_layer_file = full_path_to_file.startsWith(":/resourcefiles/");
+
+    Layer default_layer;
+    if (layer_id != LAYER_THIRD_PARTY && is_missing_layer_data && !is_builtin_layer_file) {
+        const bool result = default_layer.Load(
+            QString(":/resourcefiles/") + GetBuiltinFolder(_api_version) + default_layers[layer_id].file, _layer_type);
+        assert(result);
+    }
+
+    // Load layer settings
     const QJsonValue& json_settings_value = json_layer_object.value("settings");
-    VKC_ASSERT_VERSION(SUPPORT_VKCONFIG_2_0_2 && json_settings_value != QJsonValue::Undefined, Version("2.0.3"),
-                       _file_format_version);
     if (json_settings_value != QJsonValue::Undefined) {
         assert(json_settings_value.isArray());
         const QJsonArray& json_array = json_settings_value.toArray();
@@ -195,12 +262,12 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
 
             settings.push_back(setting);
         }
+    } else {
+        settings = default_layer.settings;
     }
 
-    // Load presets
+    // Load layer presets
     const QJsonValue& json_presets_value = json_layer_object.value("presets");
-    VKC_ASSERT_VERSION(SUPPORT_VKCONFIG_2_0_2 && json_presets_value != QJsonValue::Undefined, Version("2.0.3"),
-                       _file_format_version);
     if (json_presets_value != QJsonValue::Undefined) {
         assert(json_presets_value.isArray());
         const QJsonArray& json_preset_array = json_presets_value.toArray();
@@ -217,18 +284,20 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
             preset.editor_state = ReadStringValue(json_preset_object, "editor_state");
 
             const QJsonArray& json_setting_array = ReadArray(json_preset_object, "settings");
-            for (int setting_index = 0, setting_count = json_preset_array.size(); setting_index < setting_count; ++setting_index) {
+            for (int setting_index = 0, setting_count = json_setting_array.size(); setting_index < setting_count; ++setting_index) {
                 const QJsonObject& json_setting_object = json_setting_array[setting_index].toObject();
 
                 LayerPresetValue setting_value;
                 setting_value.key = ReadStringValue(json_setting_object, "key");
-                setting_value.value = ReadString(json_setting_object, "values");
+                setting_value.value = ReadString(json_setting_object, "value");
 
                 preset.setting_values.push_back(setting_value);
             }
 
             presets.push_back(preset);
         }
+    } else {
+        presets = default_layer.presets;
     }
 
     return IsValid();  // Not all JSON file are layer JSON valid

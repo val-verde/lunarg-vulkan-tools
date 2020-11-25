@@ -100,9 +100,9 @@ class Configurator {
     // A readonly list of layer names with the associated settings
     // and their default values. This is for reference by individual profile
     // objects.
-    std::vector<LayerSettingsDefaults> _default_layers_settings;
-    void LoadDefaultLayerSettings();
-    const LayerSettingsDefaults* FindLayerSettings(const QString& layer_name) const;
+    // std::vector<LayerSettingsDefaults> _default_layers_settings;
+    // void LoadDefaultLayerSettings();
+    // const LayerSettingsDefaults* FindLayerSettings(const QString& layer_name) const;
 
     std::vector<Configuration> available_configurations;
     void LoadAllConfigurations();  // Load all the .profile files found

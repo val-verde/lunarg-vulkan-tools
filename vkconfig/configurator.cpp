@@ -91,7 +91,7 @@ bool Configurator::Init() {
     // Load simple app settings, the additional search paths, and the
     // override app list.
     layers.LoadAllInstalledLayers();
-    LoadDefaultLayerSettings();
+    // LoadDefaultLayerSettings();
 
     const bool has_layers = !layers.Empty();
 
@@ -227,7 +227,7 @@ void Configurator::BuildCustomLayerTree(QTreeWidget *tree_widget) {
         item->setExpanded(true);
     }
 }
-
+/*
 /// Find the settings for this named layer. If none found, return nullptr
 const LayerSettingsDefaults *Configurator::FindLayerSettings(const QString &layer_name) const {
     for (std::size_t i = 0, n = _default_layers_settings.size(); i < n; ++i)
@@ -235,7 +235,7 @@ const LayerSettingsDefaults *Configurator::FindLayerSettings(const QString &laye
 
     return nullptr;
 }
-
+*/
 /// Load all the configurations. If the built-in configurations don't exist,
 /// they are created from the embedded json files
 void Configurator::LoadAllConfigurations() {
@@ -297,6 +297,7 @@ void Configurator::LoadAllConfigurations() {
     RefreshConfiguration();
 }
 
+/*
 void Configurator::LoadDefaultLayerSettings() {
     assert(!layers.Empty());  // layers should be loaded before default settings
 
@@ -347,7 +348,7 @@ void Configurator::LoadDefaultLayerSettings() {
         _default_layers_settings.push_back(settings_defaults);
     }
 }
-
+*/
 void Configurator::RemoveConfiguration(const QString &configuration_name) {
     assert(!configuration_name.isEmpty());
 
