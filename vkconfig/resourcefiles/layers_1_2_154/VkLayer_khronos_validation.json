@@ -49,7 +49,158 @@
                 "entrypoints": [ "vkGetPhysicalDeviceToolPropertiesEXT" ]
             }
         ],
-        
+        "presets": [
+            {
+                "preset-index": 1,
+                "label": "Standard",
+                "description": "This configuration is a good default validation setting and should serve most needs most of the time.",
+                "platforms": [ "windows", "linux", "mac" ],
+                "status": "STABLE",
+                "editor_state": "01110111111111111111111001011111111110",
+                "settings": [
+                    {
+                        "key": "enables",
+                        "values": []
+                    },
+                    {
+                        "key": "disables",
+                        "values": [ "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT" ]
+                    }
+                ]
+            },
+            {
+                "preset-index": 2,
+                "label": "Reduced-Overhead",
+                "description": "This configuration disables some of the checks of Standard Validation in the interest of performance.",
+                "platforms": [ "windows", "linux", "mac" ],
+                "status": "STABLE",
+                "editor_state": "01110111111111111111111001111111111110",
+                "settings": [
+                    {
+                        "key": "enables",
+                        "values": [
+                        ]
+                    },
+                    {
+                        "key": "disables",
+                        "values": [
+                            "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
+                            "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION",
+                            "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE",
+                            "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE",
+                            "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION",
+                            "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET",
+                            "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE"
+                        ]
+                    }
+                ]
+            },
+            {
+                "preset-index": 3,
+                "label": "Best Practices",
+                "description": "This configuration provides access to the Vulkan Best Practices check. Provides warnings about potential API misuse.",
+                "platforms": [ "windows", "linux", "mac" ],
+                "status": "STABLE",
+                "editor_state": "01110111111111111111111001111111111110",
+                "settings": [
+                    {
+                        "key": "enables",
+                        "values": [
+                            "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT"
+                        ]
+                    },
+                    {
+                        "key": "disables",
+                        "values": [
+                            "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT"
+                        ]
+                    }
+                ]
+            },
+            {
+                "preset-index": 4,
+                "label": "Synchronization",
+                "description": "This configuration is a good default validation setting and should serve most needs most of the time.",
+                "platforms": [ "windows", "linux", "mac" ],
+                "status": "ALPHA",
+                "editor_state": "01110011111111111011110001111111111110",
+                "settings": [
+                    {
+                        "key": "enables",
+                        "values": [
+                            "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION"
+                        ]
+                    },
+                    {
+                        "key": "disables",
+                        "values": [
+                            "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT"
+                        ]
+                    }
+                ]
+            },
+            {
+                "preset-index": 5,
+                "label": "GPU-Assisted",
+                "description": "Provides easy access to gpu-assisted validation tools.",
+                "platforms": [ "windows", "linux" ],
+                "status": "STABLE",
+                "editor_state": "01110111111111111111111001111111111110",
+                "settings": [
+                    {
+                        "key": "enables",
+                        "values": [
+                            "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT",
+                            "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT"
+                        ]
+                    },
+                    {
+                        "key": "disables",
+                        "values": [
+                            "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT"
+                        ]
+                    }
+                ]
+            },
+            {
+                "preset-index": 6,
+                "label": "Shader Printf",
+                "description": "Provides easy access to gpu-assisted validation tools.",
+                "platforms": [ "windows", "linux" ],
+                "status": "STABLE",
+                "editor_state": "01110111111111111111111001111111111110",
+                "settings": [
+                    {
+                        "key": "enables",
+                        "values": [
+                            "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT"
+                        ]
+                    },
+                    {
+                        "key": "disables",
+                        "values": [
+                            "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT"
+                        ]
+                    }
+                ]
+            }
+        ],
         "settings" : [
             {
                 "key": "debug_action",
