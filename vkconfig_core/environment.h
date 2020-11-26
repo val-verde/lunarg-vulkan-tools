@@ -104,8 +104,8 @@ class Environment {
 
     const std::vector<Application>& GetApplications() const { return applications; }
     const Application& GetActiveApplication() const;
-    const Application& GetApplication(int application_index) const;
-    Application& GetApplication(int application_index);
+    const Application& GetApplication(std::size_t application_index) const;
+    Application& GetApplication(std::size_t application_index);
 
     const QString& Get(Active active) const;
     void Set(Active active, const QString& name);

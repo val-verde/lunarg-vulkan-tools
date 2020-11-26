@@ -104,13 +104,14 @@ static const char* GetLayoutStateToken(LayoutState state) {
 }
 
 Environment::Environment(PathManager& paths)
-    : paths_manager(paths),
+    :
 // Hack for GitHub C.I.
 #if VKC_PLATFORM == VKC_PLATFORM_WINDOWS && (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
       running_as_administrator(IsUserAnAdmin()),
 #else
       running_as_administrator(false),
 #endif
+      paths_manager(paths),
       paths(paths_manager) {
 
     const bool result = Load();
@@ -449,14 +450,14 @@ const Application& Environment::GetActiveApplication() const {
     return applications[0];  // Not found, but the list is present, so return the first item.
 }
 
-const Application& Environment::GetApplication(int application_index) const {
-    assert(application_index >= 0 && application_index < applications.size());
+const Application& Environment::GetApplication(std::size_t application_index) const {
+    assert(application_index < applications.size());
 
     return applications[application_index];
 }
 
-Application& Environment::GetApplication(int application_index) {
-    assert(application_index >= 0 && application_index < applications.size());
+Application& Environment::GetApplication(std::size_t application_index) {
+    assert(application_index < applications.size());
 
     return applications[application_index];
 }
@@ -688,7 +689,6 @@ std::vector<Application> RemoveMissingApplications(const std::vector<Application
 }
 
 std::vector<Application> UpdateDefaultApplications(const PathManager& paths, const std::vector<Application>& applications) {
-    const std::vector<Application>& default_applications = CreateDefaultApplications(paths);
     std::vector<Application> search_applications;
     std::vector<Application> updated_applications = applications;
 

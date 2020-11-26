@@ -305,20 +305,16 @@ void LayersDialog::on_pushButtonResetLayers_clicked() {
     selected_sorted_layer_name.clear();
     ui->layerTreeSorted->clear();
 
+    Configurator &configurator = Configurator::Get();
+
     for (auto it = parameters.begin(); it != parameters.end(); ++it) {
         it->state = LAYER_STATE_APPLICATION_CONTROLLED;
         it->overridden_rank = Parameter::NO_RANK;
         it->preset_index = Parameter::NO_PRESET;
-
-        const LayerSettingsDefaults *defaults = Configurator::Get().FindLayerSettings(it->name);
-        if (defaults) {
-            it->settings = defaults->settings;
-
-            if (it->name == "VK_LAYER_KHRONOS_validation") it->preset_index = Parameter::NO_PRESET;
-        }
+        it->settings = BuildSettings(*Find(configurator.layers.available_layers, it->name));
     }
 
-    OrderParameter(parameters, Configurator::Get().layers.available_layers);
+    OrderParameter(parameters, configurator.layers.available_layers);
     LoadAvailableLayersUI();
     UpdateUI();
 }
@@ -557,12 +553,8 @@ void LayersDialog::BuildParameters() {
         Parameter parameter;
         parameter.name = layer.name;
         parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
-
-        const LayerSettingsDefaults *defaults = configurator.FindLayerSettings(layer.name);
-        if (defaults) {
-            parameter.settings = defaults->settings;
-            parameter.preset_index = Parameter::NO_PRESET;
-        }
+        parameter.preset_index = Parameter::NO_PRESET;
+        parameter.settings = BuildSettings(*Find(configurator.layers.available_layers, layer.name));
 
         parameters.push_back(parameter);
     }

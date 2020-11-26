@@ -37,51 +37,10 @@
 
 #include <vector>
 
-struct DefaultConfiguration {
-    const char* name;
-    const char* required_layer;
-    Version required_api_version;
-    int platform_flags;
-    const char* preset_label;
-    int preset_index;
-};
-
-static const DefaultConfiguration default_configurations[] = {
-    {"Validation - Standard", "VK_LAYER_KHRONOS_validation", Version("1.0.0"), PLATFORM_ALL_BIT, "Standard", 1},
-    {"Validation - Reduced-Overhead", "VK_LAYER_KHRONOS_validation", Version("1.0.0"), PLATFORM_ALL_BIT, "Reduced-Overhead", 4},
-    {"Validation - Best Practices", "VK_LAYER_KHRONOS_validation", Version("1.1.126"), PLATFORM_ALL_BIT, "Best Practices", 5},
-    {"Validation - Synchronization (Alpha)", "VK_LAYER_KHRONOS_validation", Version("1.2.147"), PLATFORM_ALL_BIT,
-     "Synchronization (Alpha)", 6},
-    {"Validation - GPU-Assisted", "VK_LAYER_KHRONOS_validation", Version("1.1.126"), PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT,
-     "GPU-Assisted", 2},
-    {"Validation - Shader Printf", "VK_LAYER_KHRONOS_validation", Version("1.1.126"), PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT,
-     "Debug Printf", 3},
-    {"Frame Capture - First two frames", "VK_LAYER_LUNARG_gfxreconstruct", Version("1.2.147"),
-     PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, "", 0},
-    {"Frame Capture - Range (F5 to start and to stop)", "VK_LAYER_LUNARG_gfxreconstruct", Version("1.2.147"),
-     PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, "", 0},
-    {"API dump", "VK_LAYER_LUNARG_api_dump", Version("1.1.126"), PLATFORM_ALL_BIT, "", 0}};
-
-// This is a master list of layer settings. All the settings
-// for what layers can have user modified settings. It contains
-// the names of the layers and the properties of the settings.
-// THIS IS TO BE READ ONLY, as it is copied from frequently
-// to reset or initialize the a full layer definition for the
-// profiles.
-struct LayerSettingsDefaults {
-    QString layer_name;                  // Name of layer
-    std::vector<LayerSetting> settings;  // Default settings for this layer
-};
-
 class Configurator {
    public:
     static Configurator& Get();
     bool Init();
-
-    // Validation Preset
-   public:
-    const char* GetValidationPresetName(int preset_index) const;
-    const char* GetValidationPresetLabel(int preset_index) const;
 
     // Additional places to look for layers
    public:
@@ -96,13 +55,6 @@ class Configurator {
     bool HasActiveOverrideOnApplicationListOnly() const {
         return SupportApplicationList() && environment.UseApplicationListOverrideMode();
     }
-
-    // A readonly list of layer names with the associated settings
-    // and their default values. This is for reference by individual profile
-    // objects.
-    // std::vector<LayerSettingsDefaults> _default_layers_settings;
-    // void LoadDefaultLayerSettings();
-    // const LayerSettingsDefaults* FindLayerSettings(const QString& layer_name) const;
 
     std::vector<Configuration> available_configurations;
     void LoadAllConfigurations();  // Load all the .profile files found
@@ -134,5 +86,3 @@ class Configurator {
     Environment environment;
     LayerManager layers;
 };
-
-int GetValidationPresetIndex(const QString& configuration_name);

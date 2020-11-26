@@ -41,44 +41,21 @@
 #include <cstdio>
 #include <algorithm>
 
-int GetValidationPresetIndex(const QString &configuration_name) {
-    assert(!configuration_name.isEmpty());
+struct DefaultConfiguration {
+    const char *name;
+    int platform_flags;
+};
 
-    for (std::size_t i = 0, n = countof(default_configurations); i < n; ++i) {
-        if (default_configurations[i].name != configuration_name) continue;
-        return default_configurations[i].preset_index;
-    }
-
-    return Parameter::NO_PRESET;  // Not found
-}
-
-static const DefaultConfiguration *FindDefaultConfiguration(int preset_index) {
-    for (std::size_t i = 0, n = countof(default_configurations); i < n; ++i) {
-        if (default_configurations[i].preset_index != preset_index) continue;
-        return &default_configurations[i];
-    }
-
-    return nullptr;  // Not found
-}
-
-const char *Configurator::GetValidationPresetName(int preset_index) const {
-    // 0 is user defined, there is no file for that
-    assert(preset_index > Parameter::NO_PRESET);
-
-    const DefaultConfiguration *configuration = FindDefaultConfiguration(preset_index);
-    if (configuration) return configuration->name;
-
-    assert(0);
-    return nullptr;
-}
-
-const char *Configurator::GetValidationPresetLabel(int preset_index) const {
-    const DefaultConfiguration *configuration = FindDefaultConfiguration(preset_index);
-    if (configuration) return configuration->preset_label;
-
-    assert(0);
-    return nullptr;
-}
+static const DefaultConfiguration default_configurations[] = {
+    {"Validation - Standard", PLATFORM_ALL_BIT},
+    {"Validation - Reduced-Overhead", PLATFORM_ALL_BIT},
+    {"Validation - Best Practices", PLATFORM_ALL_BIT},
+    {"Validation - Synchronization (Alpha)", PLATFORM_ALL_BIT},
+    {"Validation - GPU-Assisted", PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT},
+    {"Validation - Shader Printf", PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT},
+    {"Frame Capture - First two frames", PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT},
+    {"Frame Capture - Range (F5 to start and to stop)", PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT},
+    {"API dump", PLATFORM_ALL_BIT}};
 
 Configurator &Configurator::Get() {
     static Configurator configurator;
@@ -91,7 +68,6 @@ bool Configurator::Init() {
     // Load simple app settings, the additional search paths, and the
     // override app list.
     layers.LoadAllInstalledLayers();
-    // LoadDefaultLayerSettings();
 
     const bool has_layers = !layers.Empty();
 
@@ -227,15 +203,7 @@ void Configurator::BuildCustomLayerTree(QTreeWidget *tree_widget) {
         item->setExpanded(true);
     }
 }
-/*
-/// Find the settings for this named layer. If none found, return nullptr
-const LayerSettingsDefaults *Configurator::FindLayerSettings(const QString &layer_name) const {
-    for (std::size_t i = 0, n = _default_layers_settings.size(); i < n; ++i)
-        if (layer_name == _default_layers_settings[i].layer_name) return &_default_layers_settings[i];
 
-    return nullptr;
-}
-*/
 /// Load all the configurations. If the built-in configurations don't exist,
 /// they are created from the embedded json files
 void Configurator::LoadAllConfigurations() {
@@ -259,6 +227,8 @@ void Configurator::LoadAllConfigurations() {
         }
 
         for (std::size_t i = 0, n = countof(default_configurations); i < n; ++i) {
+            if (!(default_configurations[i].platform_flags & VKC_PLATFORM)) continue;
+
             // Search the list of loaded configurations
             const QString file = QString(":/resourcefiles/configurations/") + default_configurations[i].name + ".json";
 
@@ -297,58 +267,6 @@ void Configurator::LoadAllConfigurations() {
     RefreshConfiguration();
 }
 
-/*
-void Configurator::LoadDefaultLayerSettings() {
-    assert(!layers.Empty());  // layers should be loaded before default settings
-
-    // Load the main object into the json document
-    QFile file(":/resourcefiles/layer_info.json");
-    const bool result = file.open(QFile::ReadOnly);
-    assert(result);
-    QString data = file.readAll();
-    file.close();
-
-    QJsonDocument json_layer_info_doc;
-    json_layer_info_doc = QJsonDocument::fromJson(data.toLocal8Bit());
-    if (!json_layer_info_doc.isObject()) return;
-
-    // Isolate the Json object for each layer
-    QJsonObject doc_object = json_layer_info_doc.object();
-    QJsonValue layer_options_value = doc_object.value("layer_options");
-    QJsonObject layers_options_object = layer_options_value.toObject();
-
-    // This is a list of layers for which we have user editable settings.
-    // there are nine as of this writing, but this code should accomodate
-    // if more are added at a later time.
-    // All the layers have been loaded, so we can look for matches
-    // and let the layers parse the json data to create their own list
-    // of settings.
-    QStringList layers_with_settings = layers_options_object.keys();
-    for (int i = 0, n = layers_with_settings.size(); i < n; ++i) {  // For each setting
-        LayerSettingsDefaults settings_defaults;
-        settings_defaults.layer_name = layers_with_settings[i];
-
-        // Save the name of the layer, and by default none are read only
-        settings_defaults.layer_name = layers_with_settings[i];
-
-        // Get the object for just this layer
-        const QJsonValue &layer_value = layers_options_object.value(layers_with_settings[i]);
-        const QJsonObject &layer_object = layer_value.toObject();
-
-        Parameter parameter;
-        parameter.name = settings_defaults.layer_name;
-        parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
-        parameter.settings = settings_defaults.settings;
-
-        ::LoadSettings(layer_object, parameter);
-
-        settings_defaults.settings = parameter.settings;
-
-        // Add to my list of layer settings
-        _default_layers_settings.push_back(settings_defaults);
-    }
-}
-*/
 void Configurator::RemoveConfiguration(const QString &configuration_name) {
     assert(!configuration_name.isEmpty());
 

@@ -29,6 +29,38 @@
 #include <cassert>
 #include <algorithm>
 
+LayerSetting* FindSetting(Parameter& parameter, const char* key) {
+    for (std::size_t i = 0, n = parameter.settings.size(); i < n; ++i) {
+        if (parameter.settings[i].key == key) return &parameter.settings[i];
+    }
+
+    return nullptr;
+}
+
+bool ApplySettings(Parameter& parameter, const LayerPreset& preset) {
+    for (std::size_t i = 0, n = parameter.settings.size(); i < n; ++i) {
+        LayerSetting& layer_setting = parameter.settings[i];
+
+        for (std::size_t j = 0, m = preset.settings.size(); j < m; ++j) {
+            const LayerSettingValue& preset_setting = preset.settings[j];
+
+            if (layer_setting.key == preset_setting.key.c_str()) {
+                layer_setting.default_value = preset_setting.value.c_str();
+            }
+        }
+    }
+
+    return true;
+}
+
+bool ResetSettings(Parameter& parameter, const Layer& layer) {
+    assert(parameter.name == layer.name);
+
+    parameter.settings = layer.settings;
+
+    return true;
+}
+
 ParameterRank GetParameterOrdering(const std::vector<Layer>& available_layers, const Parameter& parameter) {
     assert(!parameter.name.isEmpty());
 
@@ -306,3 +338,5 @@ bool SaveSettings(const Parameter& parameter, QJsonObject& json_settings) {
 
     return true;
 }
+
+std::vector<LayerSetting> BuildSettings(const Layer& layer) { return layer.settings; }

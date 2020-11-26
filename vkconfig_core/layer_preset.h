@@ -26,7 +26,7 @@
 #include <vector>
 
 // TODO: replace by SettingValue
-struct LayerPresetValue {
+struct LayerSettingValue {
     std::string key;
     std::string value;
 };
@@ -38,7 +38,9 @@ struct LayerPreset {
     int platform_flags;
     StatusType status_type;
     std::string editor_state;
-    std::vector<LayerPresetValue> setting_values;
+    std::vector<LayerSettingValue> settings;
 };
 
-LayerPresetValue* FindSetting(LayerPreset& preset, const char* key);
+LayerSettingValue* FindSetting(LayerPreset& preset, const char* key);
+
+const LayerPreset* GetPreset(const std::vector<LayerPreset>& presets, int preset_index);

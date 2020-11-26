@@ -240,3 +240,49 @@ TEST(test_parameter, order_manual) {
     EXPECT_STREQ("Layer C2", parameters[16].name.toUtf8().constData());
     EXPECT_STREQ("Layer E2", parameters[17].name.toUtf8().constData());
 }
+
+TEST(test_parameter, find_setting) {
+    LayerSetting layer_setting_a;
+    layer_setting_a.key = "A";
+    layer_setting_a.default_value = "setting value a";
+
+    LayerSetting layer_setting_b;
+    layer_setting_b.key = "B";
+    layer_setting_b.default_value = "setting value b";
+
+    LayerSetting layer_setting_c;
+    layer_setting_c.key = "C";
+    layer_setting_c.default_value = "setting value c";
+
+    Parameter parameter;
+    parameter.settings.push_back(layer_setting_a);
+    parameter.settings.push_back(layer_setting_b);
+    parameter.settings.push_back(layer_setting_c);
+
+    EXPECT_STREQ("setting value b", FindSetting(parameter, "B")->default_value.toStdString().c_str());
+}
+
+TEST(test_parameter, apply_settings) {
+    LayerSettingValue preset_setting;
+    preset_setting.key = "A";
+    preset_setting.value = "preset value";
+
+    LayerPreset preset;
+    preset.settings.push_back(preset_setting);
+
+    LayerSetting layer_setting_a;
+    layer_setting_a.key = "A";
+    layer_setting_a.default_value = "setting value";
+
+    LayerSetting layer_setting_b;
+    layer_setting_b.key = "B";
+    layer_setting_b.default_value = "setting value";
+
+    Parameter parameter;
+    parameter.settings.push_back(layer_setting_a);
+    parameter.settings.push_back(layer_setting_b);
+
+    ApplySettings(parameter, preset);
+
+    EXPECT_STREQ("preset value", FindSetting(parameter, "A")->default_value.toStdString().c_str());
+}

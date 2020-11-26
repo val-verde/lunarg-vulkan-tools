@@ -72,3 +72,9 @@ bool HasMissingParameter(const std::vector<Parameter>& parameters, const std::ve
 
 bool LoadSettings(const QJsonObject& layer_settings_descriptors, Parameter& parameter);
 bool SaveSettings(const Parameter& parameter, QJsonObject& layer_settings_descriptors);
+
+std::vector<LayerSetting> BuildSettings(const Layer& layer);
+
+LayerSetting* FindSetting(Parameter& parameter, const char* key);
+bool ApplySettings(Parameter& parameter, const LayerPreset& preset);
+bool ResetSettings(Parameter& parameter, const Layer& layer);

@@ -64,7 +64,7 @@ class SettingsTreeManager : QObject {
     void BuildKhronosTree(Parameter &parameter);
     void BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter);
 
-    int GetValidationPresentIndex(const int preset_index) const;
+    int GetPresetIndex(const int preset_index) const;
 
     QTreeWidget *_configuration_settings_tree;
     std::vector<QTreeWidgetItem *> _compound_widgets;  // These have special cleanup requirements

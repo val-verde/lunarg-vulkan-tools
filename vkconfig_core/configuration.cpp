@@ -123,7 +123,7 @@ bool Configuration::Load(const QString& full_path) {
     }
 
     const QJsonValue& json_legacy_preset = configuration_entry_object.value("preset");
-    VKC_ASSERT_VERSION(SUPPORT_VKCONFIG_2_0_2 && json_legacy_preset == QJsonValue::Undefined, Version("2.0.3"), version);
+    // VKC_ASSERT_VERSION(SUPPORT_VKCONFIG_2_0_2 && json_legacy_preset == QJsonValue::Undefined, Version("2.0.3"), version);
 
     const QJsonValue& editor_state = configuration_entry_object.value("editor_state");
     _setting_tree_state = editor_state.toVariant().toByteArray();
