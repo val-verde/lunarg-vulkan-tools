@@ -166,7 +166,7 @@ void MainWindow::UpdateUI() {
 
         if (!HasMissingParameter(configuration->parameters, configurator.layers.available_layers)) {
             item->setText(1, item->configuration_name);
-            item->radio_button->setToolTip(configuration->_description);
+            item->radio_button->setToolTip(configuration->description);
         } else {
             item->setText(1, item->configuration_name + " (Invalid)");
             item->radio_button->setToolTip(
@@ -272,7 +272,7 @@ void MainWindow::LoadConfigurationList() {
         if (VKC_PLATFORM == VKC_PLATFORM_MACOS)  // Mac OS does not leave enough space without this
             item->radio_button->setText(" ");
 
-        item->radio_button->setToolTip(configuration._description);
+        item->radio_button->setToolTip(configuration.description);
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->configuration_tree->setItemWidget(item, 0, item->radio_button);

@@ -21,6 +21,7 @@
 
 #include "configuration.h"
 #include "util.h"
+#include "json.h"
 #include "platform.h"
 #include "version.h"
 
@@ -35,7 +36,7 @@
 #include <cstdio>
 #include <algorithm>
 
-Configuration::Configuration() : name("New Configuration") {}
+Configuration::Configuration() : name("New Configuration"), platform_flags(PLATFORM_ALL_BIT) {}
 
 static Version GetConfigurationVersion(const QJsonValue& default_value) {
     if (SUPPORT_VKCONFIG_2_0_1) {
@@ -46,11 +47,9 @@ static Version GetConfigurationVersion(const QJsonValue& default_value) {
     }
 }
 
-static int GetPresetIndex(const QJsonValue& preset_index, const QJsonValue& legacy_preset_index) {
+static int GetPresetIndex(const QJsonValue& preset_index) {
     if (preset_index != QJsonValue::Undefined)
         return preset_index.toInt();
-    else if (legacy_preset_index != QJsonValue::Undefined)
-        return legacy_preset_index.toInt();
     else
         return Parameter::NO_PRESET;
 }
@@ -82,26 +81,10 @@ bool Configuration::Load(const QString& full_path) {
     const QJsonValue& configuration_entry_value = json_top_object.value(key[0]);
     const QJsonObject& configuration_entry_object = configuration_entry_value.toObject();
 
-    if (SUPPORT_VKCONFIG_2_0_1 && VKC_PLATFORM == VKC_PLATFORM_MACOS) {
-        if (full_path.contains("Validation - Shader Printf.json") || full_path.contains("Validation - Debug Printf.json") ||
-            full_path.contains("Validation - GPU-Assisted.json")) {
-            return false;
-        }
-    }
-
     if (SUPPORT_VKCONFIG_2_0_1 && version <= Version("2.0.1")) {
         name = filename.left(filename.length() - 5);
-        if (name == "Validation - Shader Printf") {
-            name = "Validation - Debug Printf";
-            if (!full_path.startsWith(":/resourcefiles")) {
-                const int result = std::remove(full_path.toStdString().c_str());
-                assert(result == 0);
-            }
-        }
     } else {
-        const QJsonValue& json_name_value = configuration_entry_object.value("name");
-        assert(json_name_value != QJsonValue::Undefined);
-        name = json_name_value.toString();
+        name = ReadString(configuration_entry_object, "name").c_str();
     }
 
     if (name.isEmpty()) {
@@ -122,23 +105,20 @@ bool Configuration::Load(const QString& full_path) {
         parameters.push_back(parameter);
     }
 
-    const QJsonValue& json_legacy_preset = configuration_entry_object.value("preset");
-    // VKC_ASSERT_VERSION(SUPPORT_VKCONFIG_2_0_2 && json_legacy_preset == QJsonValue::Undefined, Version("2.0.3"), version);
+    setting_tree_state = configuration_entry_object.value("editor_state").toVariant().toByteArray();
 
-    const QJsonValue& editor_state = configuration_entry_object.value("editor_state");
-    _setting_tree_state = editor_state.toVariant().toByteArray();
+    description = ReadString(configuration_entry_object, "description").c_str();
 
-    const QJsonValue& description = configuration_entry_object.value("description");
-    assert(description != QJsonValue::Undefined);
-    _description = description.toString();
+    const QJsonValue& json_platform_value = configuration_entry_object.value("platforms");
+    if (json_platform_value != QJsonValue::Undefined) {
+        platform_flags = GetPlatformFlags(ReadStringArray(configuration_entry_object, "platforms"));
+    }
 
-    QJsonValue options_value = configuration_entry_object.value("layer_options");
-    assert(options_value != QJsonValue::Undefined);
+    const QJsonObject& layer_objects = ReadObject(configuration_entry_object, "layer_options");
 
-    QJsonObject layer_objects = options_value.toObject();
     const QStringList& layers = layer_objects.keys();
 
-    if (options_value != QJsonValue::Undefined && version > Version::VKCONFIG) {
+    if (version > Version::VKCONFIG) {
         QMessageBox alert;
         alert.setWindowTitle("Vulkan Configurator version is too old...");
         alert.setText(format("The \"%s\" configuration was created with a newer version of %s. Use %s from the "
@@ -159,7 +139,7 @@ bool Configuration::Load(const QString& full_path) {
         const QJsonValue& json_preset = layer_object.value("preset_index");
 
         const int overridden_rank = layer_rank == QJsonValue::Undefined ? Parameter::NO_RANK : layer_rank.toInt();
-        const int preset_index = GetPresetIndex(json_preset, json_legacy_preset);
+        const int preset_index = GetPresetIndex(json_preset);
 
         auto parameter = FindParameter(parameters, layers[layer_index]);
         if (parameter != parameters.end()) {
@@ -217,8 +197,9 @@ bool Configuration::Save(const QString& full_path) const {
     QJsonObject json_configuration;
     json_configuration.insert("name", name);
     json_configuration.insert("blacklisted_layers", excluded_list);
-    json_configuration.insert("description", _description);
-    json_configuration.insert("editor_state", _setting_tree_state.data());
+    json_configuration.insert("description", description);
+    SaveStringArray(json_configuration, "platforms", GetPlatformTokens(platform_flags));
+    json_configuration.insert("editor_state", setting_tree_state.data());
     json_configuration.insert("layer_options", overridden_list);
     root.insert("configuration", json_configuration);
 
@@ -243,6 +224,8 @@ bool Configuration::Save(const QString& full_path) const {
 }
 
 bool Configuration::IsEmpty() const { return parameters.empty(); }
+
+bool Configuration::IsAvailableOnThisPlatform() const { return platform_flags & (1 << VKC_PLATFORM); }
 
 static const size_t NOT_FOUND = static_cast<size_t>(-1);
 

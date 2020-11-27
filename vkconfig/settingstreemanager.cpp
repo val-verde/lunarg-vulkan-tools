@@ -120,7 +120,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
 
     // Everyone is expanded.
     build_tree->resizeColumnToContents(0);
-    SetTreeState(configuration->_setting_tree_state, 0, _configuration_settings_tree->invisibleRootItem());
+    SetTreeState(configuration->setting_tree_state, 0, _configuration_settings_tree->invisibleRootItem());
     build_tree->blockSignals(false);
 }
 
@@ -478,8 +478,8 @@ void SettingsTreeManager::CleanupGUI() {
     if (configuration == configurator.available_configurations.end()) return;
 
     // Get the state of the last tree, and save it!
-    configuration->_setting_tree_state.clear();
-    GetTreeState(configuration->_setting_tree_state, _configuration_settings_tree->invisibleRootItem());
+    configuration->setting_tree_state.clear();
+    GetTreeState(configuration->setting_tree_state, _configuration_settings_tree->invisibleRootItem());
     const bool result = configuration->Save(Configurator::Get().path.GetFullPath(PATH_CONFIGURATION, configuration->name));
     assert(result);
 

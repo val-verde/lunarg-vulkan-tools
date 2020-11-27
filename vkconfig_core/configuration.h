@@ -34,10 +34,12 @@ class Configuration {
 
     bool Load(const QString& full_path);
     bool Save(const QString& full_path) const;
+    bool IsAvailableOnThisPlatform() const;
 
-    QString name;                    // User readable display of the profile name (may contain spaces)
-    QString _description;            // A friendly description of what this profile does
-    QByteArray _setting_tree_state;  // Recall editor tree state
+    QString name;  // User readable display of the profile name (may contain spaces)
+    int platform_flags;
+    QString description;            // A friendly description of what this profile does
+    QByteArray setting_tree_state;  // Recall editor tree state
 
     std::vector<Parameter> parameters;
 

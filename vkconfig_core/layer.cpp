@@ -190,7 +190,7 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
 
     _api_version = Version(ReadStringValue(json_layer_object, "api_version").c_str());
     _implementation_version = ReadStringValue(json_layer_object, "implementation_version").c_str();
-    _description = ReadStringValue(json_layer_object, "description").c_str();
+    description = ReadStringValue(json_layer_object, "description").c_str();
 
     // Load default layer json file if necessary
     const LayerID layer_id = GetLayerID(name);

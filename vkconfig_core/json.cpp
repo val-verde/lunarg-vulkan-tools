@@ -88,3 +88,11 @@ int ReadIntValue(const QJsonObject& json_object, const char* key) {
     assert(!json_value.isArray());
     return json_value.toInt();
 }
+
+void SaveStringArray(QJsonObject& json_object, const char* key, const std::vector<std::string>& tokens) {
+    QJsonArray json_platforms;
+    for (std::size_t i = 0, n = tokens.size(); i < n; ++i) {
+        json_platforms.append(tokens[i].c_str());
+    }
+    json_object.insert(key, json_platforms);
+}

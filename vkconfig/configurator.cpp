@@ -41,22 +41,6 @@
 #include <cstdio>
 #include <algorithm>
 
-struct DefaultConfiguration {
-    const char *name;
-    int platform_flags;
-};
-
-static const DefaultConfiguration default_configurations[] = {
-    {"Validation - Standard", PLATFORM_ALL_BIT},
-    {"Validation - Reduced-Overhead", PLATFORM_ALL_BIT},
-    {"Validation - Best Practices", PLATFORM_ALL_BIT},
-    {"Validation - Synchronization (Alpha)", PLATFORM_ALL_BIT},
-    {"Validation - GPU-Assisted", PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT},
-    {"Validation - Shader Printf", PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT},
-    {"Frame Capture - First two frames", PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT},
-    {"Frame Capture - Range (F5 to start and to stop)", PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT},
-    {"API dump", PLATFORM_ALL_BIT}};
-
 Configurator &Configurator::Get() {
     static Configurator configurator;
     return configurator;
@@ -215,14 +199,17 @@ void Configurator::LoadAllConfigurations() {
     if (environment.first_run) {
         RemoveConfigurationFiles();
 
-        for (std::size_t i = 0, n = countof(default_configurations); i < n; ++i) {
-            if (!(default_configurations[i].platform_flags & (1 << VKC_PLATFORM))) continue;
+        QDir dir(":/resourcefiles/configurations/");
+        dir.setFilter(QDir::Files | QDir::NoSymLinks);
+        dir.setNameFilters(QStringList() << "*.json");
+        const QFileInfoList &configuration_files = dir.entryInfoList();
 
-            // Search the list of loaded configurations
-            const QString file = QString(":/resourcefiles/configurations/") + default_configurations[i].name + ".json";
-
+        for (int i = 0, n = configuration_files.size(); i < n; ++i) {
             Configuration configuration;
-            const bool result = configuration.Load(file);
+            const bool result = configuration.Load(configuration_files[i].absoluteFilePath());
+
+            if (!configuration.IsAvailableOnThisPlatform()) continue;
+
             OrderParameter(configuration.parameters, layers.available_layers);
             if (result) {
                 const bool result = configuration.Save(path.GetFullPath(PATH_CONFIGURATION, configuration.name));

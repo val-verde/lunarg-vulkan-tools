@@ -192,7 +192,7 @@ void Environment::Reset(ResetMode mode) {
 
             applications = CreateDefaultApplications(paths);
 
-            Set(ACTIVE_CONFIGURATION, "Validation - Standard");
+            Set(ACTIVE_CONFIGURATION, "Validation");
             break;
         }
         case SYSTEM: {

@@ -35,7 +35,7 @@ bool operator==(const Layer& a, const Layer& b) {
         return false;
     else if (a._implementation_version != b._implementation_version)
         return false;
-    else if (a._description != b._description)
+    else if (a.description != b.description)
         return false;
     else if (a._layer_path != b._layer_path)
         return false;

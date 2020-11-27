@@ -46,8 +46,10 @@ enum PlatformFlags {
 };
 
 int GetPlatformFlags(const std::vector<std::string>& platform_strings);
-const char* GetToken(PlatformType type);
+std::vector<std::string> GetPlatformTokens(int platform_flags);
+
 PlatformType GetPlatformType(const char* token);
+const char* GetToken(PlatformType type);
 
 enum StatusType {
     STATUS_STABLE = 0,

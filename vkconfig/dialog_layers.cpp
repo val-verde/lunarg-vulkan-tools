@@ -118,7 +118,7 @@ LayersDialog::LayersDialog(QWidget *parent, const Configuration &configuration)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     ui->lineEditName->setText(configuration.name);
-    ui->lineEditDescription->setText(configuration._description);
+    ui->lineEditDescription->setText(configuration.description);
 
     Environment &environment = Configurator::Get().environment;
     restoreGeometry(environment.Get(LAYOUT_LAYER_GEOMETRY));
@@ -383,7 +383,7 @@ void LayersDialog::currentLayerChanged(QTreeWidgetItem *current, QTreeWidgetItem
 
     const std::vector<Layer>::const_iterator layer = Find(available_layers, layer_item->layer_name);
     if (layer != available_layers.end()) {
-        QString detailsText = layer->_description;
+        QString detailsText = layer->description;
         detailsText += "\n";
         detailsText += QString("(") + GetLayerTypeLabel(layer->_layer_type) + ")\n";
 
@@ -503,7 +503,7 @@ void LayersDialog::accept() {
     FilterParameters(parameters, LAYER_STATE_APPLICATION_CONTROLLED);
 
     configuration.name = ui->lineEditName->text();
-    configuration._description = ui->lineEditDescription->text();
+    configuration.description = ui->lineEditDescription->text();
     configuration.parameters = parameters;
 
     const QString save_path = configurator.path.GetFullPath(PATH_CONFIGURATION, ui->lineEditName->text());

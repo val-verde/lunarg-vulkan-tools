@@ -31,6 +31,18 @@ int GetPlatformFlags(const std::vector<std::string>& platform_strings) {
     return result;
 }
 
+std::vector<std::string> GetPlatformTokens(int platform_flags) {
+    std::vector<std::string> result;
+
+    for (std::size_t i = 0, n = PLATFORM_COUNT; i < n; ++i) {
+        if (platform_flags & (1 << i)) {
+            result.push_back(GetToken(static_cast<PlatformType>(i)));
+        }
+    }
+
+    return result;
+}
+
 const char* GetToken(PlatformType type) {
     static const char* table[] = {
         "windows",  // PLATFORM_WINDOWS

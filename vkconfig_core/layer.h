@@ -56,7 +56,7 @@ class Layer {
     QString _library_path;  // This is a relative path, straight out of the json
     Version _api_version;
     QString _implementation_version;
-    QString _description;
+    QString description;
 
     std::vector<LayerSetting> settings;
     std::vector<LayerPreset> presets;
