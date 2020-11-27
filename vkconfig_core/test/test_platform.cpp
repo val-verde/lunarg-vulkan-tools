@@ -24,6 +24,21 @@
 
 #include <cstring>
 
+TEST(test_platform, platform_flags_one) {
+    std::vector<std::string> platform_strings;
+    platform_strings.push_back(GetToken(PLATFORM_LINUX));
+
+    EXPECT_EQ(PLATFORM_LINUX_BIT, GetPlatformFlags(platform_strings));
+}
+
+TEST(test_platform, platform_flags_some) {
+    std::vector<std::string> platform_strings;
+    platform_strings.push_back(GetToken(PLATFORM_LINUX));
+    platform_strings.push_back(GetToken(PLATFORM_MACOS));
+
+    EXPECT_EQ(PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT, GetPlatformFlags(platform_strings));
+}
+
 TEST(test_platform, platform_flags_all) {
     std::vector<std::string> platform_strings;
     for (std::size_t i = 0, n = PLATFORM_COUNT; i < n; ++i) {

@@ -17,3 +17,22 @@
  * Authors:
  * - Christophe Riccio <christophe@lunarg.com>
  */
+
+#include "../layer_setting.h"
+
+#include <gtest/gtest.h>
+
+TEST(test_layer_setting, find) {
+    LayerSetting layer_setting_a;
+    layer_setting_a.key = "A";
+
+    LayerSetting layer_setting_b;
+    layer_setting_b.key = "B";
+
+    std::vector<LayerSetting> settings;
+    settings.push_back(layer_setting_a);
+    settings.push_back(layer_setting_b);
+
+    EXPECT_STREQ("A", FindSetting(settings, "A")->key.toStdString().c_str());
+    EXPECT_EQ(nullptr, FindSetting(settings, "NULL"));
+}
