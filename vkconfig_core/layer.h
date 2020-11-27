@@ -50,7 +50,7 @@ class Layer {
 
    public:
     // Standard pieces of a layer
-    Version _file_format_version;
+    Version file_format_version;
     QString name;
     QString _type;
     QString _library_path;  // This is a relative path, straight out of the json
@@ -65,5 +65,5 @@ class Layer {
     LayerType _layer_type;
 
     // File based layers
-    bool Load(QString full_path_to_file, LayerType layer_type);
+    bool Load(const QString& full_path_to_file, LayerType layer_type);
 };

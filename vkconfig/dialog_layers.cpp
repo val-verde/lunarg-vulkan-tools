@@ -402,7 +402,7 @@ void LayersDialog::currentLayerChanged(QTreeWidgetItem *current, QTreeWidgetItem
         detailsText += "\n";
 
         detailsText += "File format: ";
-        detailsText += layer->_file_format_version.str().c_str();
+        detailsText += layer->file_format_version.str().c_str();
 
         ui->labelLayerDetails->setText(detailsText);
     } else {

@@ -38,12 +38,12 @@
 
 Configuration::Configuration() : name("New Configuration"), platform_flags(PLATFORM_ALL_BIT) {}
 
-static Version GetConfigurationVersion(const QJsonValue& default_value) {
+static Version GetConfigurationVersion(const QJsonValue& value) {
     if (SUPPORT_VKCONFIG_2_0_1) {
-        return Version(default_value == QJsonValue::Undefined ? "2.0.1" : default_value.toString().toUtf8().constData());
+        return Version(value == QJsonValue::Undefined ? "2.0.1" : value.toString().toStdString().c_str());
     } else {
-        assert(default_value != QJsonValue::Undefined);
-        return Version(default_value.toString().toUtf8().constData());
+        assert(value != QJsonValue::Undefined);
+        return Version(value.toString().toStdString().c_str());
     }
 }
 

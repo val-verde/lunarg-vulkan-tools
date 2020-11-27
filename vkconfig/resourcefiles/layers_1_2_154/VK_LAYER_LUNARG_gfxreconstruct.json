@@ -21,7 +21,6 @@
                 "description": "Capture the applications first two frames.",
                 "platforms": [ "windows", "linux" ],
                 "status": "stable",
-                "editor_state": "01111111111111111111111",
                 "settings": [
                     {
                         "key": "capture_trigger",
@@ -43,7 +42,6 @@
                 "description": "Capture a range of frames",
                 "platforms": [ "windows", "linux" ],
                 "status": "stable",
-                "editor_state": "011111111111111111111111111",
                 "settings": [
                     {
                         "key": "capture_trigger",

@@ -56,7 +56,6 @@
                 "description": "This configuration is a good default validation setting and should serve most needs most of the time.",
                 "platforms": [ "windows", "linux", "mac" ],
                 "status": "stable",
-                "editor_state": "01110111111111111111111001011111111110",
                 "settings": [
                     {
                         "key": "enables",
@@ -102,7 +101,6 @@
                 "description": "This configuration provides access to the Vulkan Best Practices check. Provides warnings about potential API misuse.",
                 "platforms": [ "windows", "linux", "mac" ],
                 "status": "stable",
-                "editor_state": "01110111111111111111111001111111111110",
                 "settings": [
                     {
                         "key": "enables",
@@ -128,7 +126,6 @@
                 "description": "This configuration is a good default validation setting and should serve most needs most of the time.",
                 "platforms": [ "windows", "linux", "mac" ],
                 "status": "alpha",
-                "editor_state": "01110011111111111011110001111111111110",
                 "settings": [
                     {
                         "key": "enables",
@@ -153,7 +150,6 @@
                 "description": "Provides easy access to gpu-assisted validation tools.",
                 "platforms": [ "windows", "linux" ],
                 "status": "stable",
-                "editor_state": "01110111111111111111111001111111111110",
                 "settings": [
                     {
                         "key": "enables",
@@ -180,7 +176,6 @@
                 "description": "Provides easy access to gpu-assisted validation tools.",
                 "platforms": [ "windows", "linux" ],
                 "status": "stable",
-                "editor_state": "01110111111111111111111001111111111110",
                 "settings": [
                     {
                         "key": "enables",

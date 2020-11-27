@@ -89,6 +89,12 @@ int ReadIntValue(const QJsonObject& json_object, const char* key) {
     return json_value.toInt();
 }
 
+Version ReadVersionValue(const QJsonObject& json_object, const char* key) {
+    const std::string& version_string = ReadStringValue(json_object, key);
+    assert(!version_string.empty());
+    return Version(version_string.c_str());
+}
+
 void SaveStringArray(QJsonObject& json_object, const char* key, const std::vector<std::string>& tokens) {
     QJsonArray json_platforms;
     for (std::size_t i = 0, n = tokens.size(); i < n; ++i) {

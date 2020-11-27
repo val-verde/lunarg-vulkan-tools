@@ -31,7 +31,6 @@ struct LayerPreset {
     std::string description;
     int platform_flags;
     StatusType status_type;
-    std::string editor_state;
     std::vector<SettingStorage> settings;
 };
 

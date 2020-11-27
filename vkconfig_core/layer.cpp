@@ -31,60 +31,13 @@
 
 #include <cassert>
 
-enum LayerID {
-    LAYER_THIRD_PARTY = -1,
-    LAYER_KHRONOS_VALIDATION = 0,
-    LAYER_LUNARG_API_DUMP,
-    LAYER_LUNARG_DEVICE_SIMULATION,
-    LAYER_LUNARG_GFXRECONSTRUCT,
-    LAYER_LUNARG_MONITOR,
-    LAYER_LUNARG_SCREENSHOT,
-
-    LAYER_FIRST = LAYER_KHRONOS_VALIDATION,
-    LAYER_LAST = LAYER_LUNARG_SCREENSHOT
-};
-
-enum { LAYER_COUNT = LAYER_LAST - LAYER_FIRST + 1 };
-
-struct DefaultLayer {
-    LayerID id;
-    const char* name;
-    const char* file;
-};
-
-static const DefaultLayer default_layers[] = {
-    {LAYER_KHRONOS_VALIDATION, "VK_LAYER_KHRONOS_validation", "VkLayer_khronos_validation.json"},
-    {LAYER_LUNARG_API_DUMP, "VK_LAYER_LUNARG_api_dump", "VkLayer_api_dump.json"},
-    {LAYER_LUNARG_DEVICE_SIMULATION, "VK_LAYER_LUNARG_device_simulation", "VkLayer_device_simulation.json"},
-    {LAYER_LUNARG_GFXRECONSTRUCT, "VK_LAYER_LUNARG_gfxreconstruct", "VkLayer_gfxreconstruct.json"},
-    {LAYER_LUNARG_MONITOR, "VK_LAYER_LUNARG_monitor", "VkLayer_monitor.json"},
-    {LAYER_LUNARG_SCREENSHOT, "VK_LAYER_LUNARG_screenshot", "VkLayer_screenshot.json"}};
-static_assert(countof(default_layers) == LAYER_COUNT, "The tranlation table size doesn't match the enum number of elements");
-
-LayerID GetLayerID(const QString& name) {
-    assert(!name.isEmpty());
-
-    for (std::size_t i = 0, n = countof(default_layers); i < n; ++i) {
-        if (default_layers[i].name == name) return default_layers[i].id;
-    }
-
-    return LAYER_THIRD_PARTY;
-}
-
 // TODO: add latest, add all layer versions
 QString GetBuiltinFolder(const Version& version) {
     if (version <= Version(1, 2, 154))
-        return "layers_1_2_154/";
+        return ":/resourcefiles/layers_1_2_154";
     else
-        return "layers_1_2_154/";
-    /*
-        if (version <= Version(1, 2, 148))
-            return "layers_1_2_148/";
-        else if (version == Version(1, 2, 154))
-            return "layers_1_2_154/";
-        else
-            return "layers_latest/";
-    */
+        return ":/resourcefiles/layers_1_2_154";
+    //    return ":/resourcefiles/layers_latest/";
 }
 
 // delimted string is a comma delimited string. If value is found remove it
@@ -121,7 +74,7 @@ Layer::Layer(const QString& name, const LayerType layer_type, const Version& fil
              const QString& implementation_version, const QString& library_path, const QString& type)
     : name(name),
       _layer_type(layer_type),
-      _file_format_version(file_format_version),
+      file_format_version(file_format_version),
       _api_version(api_version),
       _implementation_version(implementation_version),
       _library_path(library_path),
@@ -129,24 +82,18 @@ Layer::Layer(const QString& name, const LayerType layer_type, const Version& fil
 
 // Todo: Load the layer with Vulkan API
 bool Layer::IsValid() const {
-    return _file_format_version != Version::VERSION_NULL && !name.isEmpty() && !_type.isEmpty() && !_library_path.isEmpty() &&
+    return file_format_version != Version::VERSION_NULL && !name.isEmpty() && !_type.isEmpty() && !_library_path.isEmpty() &&
            _api_version != Version::VERSION_NULL && !_implementation_version.isEmpty();
 }
 
 /// Reports errors via a message box. This might be a bad idea?
-bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
+bool Layer::Load(const QString& full_path_to_file, LayerType layer_type) {
     _layer_type = layer_type;  // Set layer type, no way to know this from the json file
 
-    // Open the file, should be text. Read it into a
-    // temporary string.
     if (full_path_to_file.isEmpty()) return false;
 
     QFile file(full_path_to_file);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        return false;
-        QMessageBox message_box;
-        message_box.setText("Could not open layer file");
-        message_box.exec();
         return false;
     }
 
@@ -176,7 +123,7 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
 
     // Populate key items about the layer
     const QJsonObject& json_root_object = json_document.object();
-    _file_format_version = Version(ReadStringValue(json_root_object, "file_format_version").c_str());
+    file_format_version = ReadVersionValue(json_root_object, "file_format_version");
 
     const QJsonObject& json_layer_object = ReadObject(json_root_object, "layer");
 
@@ -188,21 +135,19 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
            json_library_path_value == QJsonValue::Undefined && name == "VK_LAYER_LUNARG_override");
     _library_path = json_library_path_value.toString();
 
-    _api_version = Version(ReadStringValue(json_layer_object, "api_version").c_str());
+    _api_version = ReadVersionValue(json_layer_object, "api_version");
     _implementation_version = ReadStringValue(json_layer_object, "implementation_version").c_str();
     description = ReadStringValue(json_layer_object, "description").c_str();
 
     // Load default layer json file if necessary
-    const LayerID layer_id = GetLayerID(name);
     const bool is_missing_layer_data =
         json_layer_object.value("settings") == QJsonValue::Undefined || json_layer_object.value("presets") == QJsonValue::Undefined;
     const bool is_builtin_layer_file = full_path_to_file.startsWith(":/resourcefiles/");
 
     Layer default_layer;
-    if (layer_id != LAYER_THIRD_PARTY && is_missing_layer_data && !is_builtin_layer_file) {
-        const bool result = default_layer.Load(
-            QString(":/resourcefiles/") + GetBuiltinFolder(_api_version) + default_layers[layer_id].file, _layer_type);
-        assert(result);
+    if (is_missing_layer_data && !is_builtin_layer_file) {
+        const QString path = GetBuiltinFolder(_api_version) + "/" + name + ".json";
+        default_layer.Load(path, _layer_type);
     }
 
     // Load layer settings
@@ -234,14 +179,8 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
                         QString key = keys[v];
                         const QString default_value = object.value(key).toString();
 
-                        if (setting.type == SETTING_INCLUSIVE_LIST) {
-                            setting.enum_values << key;
-                            setting.enum_labels << default_value;
-                        } else if (setting.type == SETTING_EXCLUSIVE_LIST) {
-                            setting.enum_values << key;
-                            setting.enum_labels << default_value;
-                        } else
-                            assert(0);
+                        setting.enum_values << key;
+                        setting.enum_labels << default_value;
                     }
                 } break;
                 case SETTING_SAVE_FILE: {
@@ -289,7 +228,6 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
             preset.description = ReadStringValue(json_preset_object, "description");
             preset.platform_flags = GetPlatformFlags(ReadStringArray(json_preset_object, "platforms"));
             preset.status_type = GetStatusType(ReadStringValue(json_preset_object, "status").c_str());
-            preset.editor_state = ReadStringValue(json_preset_object, "editor_state");
 
             const QJsonArray& json_setting_array = ReadArray(json_preset_object, "settings");
             for (int setting_index = 0, setting_count = json_setting_array.size(); setting_index < setting_count; ++setting_index) {

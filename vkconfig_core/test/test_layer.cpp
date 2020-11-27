@@ -23,7 +23,7 @@
 #include "../layer.h"
 
 bool operator==(const Layer& a, const Layer& b) {
-    if (a._file_format_version != b._file_format_version)
+    if (a.file_format_version != b.file_format_version)
         return false;
     else if (a.name != b.name)
         return false;

@@ -18,6 +18,8 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
+#include "version.h"
+
 #include <QJsonObject>
 
 #include <string>
@@ -40,6 +42,9 @@ std::string ReadString(const QJsonObject& json_object, const char* key);
 
 // Read an int value from the json_object
 int ReadIntValue(const QJsonObject& json_object, const char* key);
+
+// Read a Version from the json_object
+Version ReadVersionValue(const QJsonObject& json_object, const char* key);
 
 // Save array of strings into a jsong object
 void SaveStringArray(QJsonObject& json_object, const char* key, const std::vector<std::string>& tokens);
