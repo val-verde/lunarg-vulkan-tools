@@ -248,11 +248,19 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
                     setting.default_value = ValidatePath(setting.default_value.toStdString()).c_str();
                     setting.default_value = ReplacePathBuiltInVariables(setting.default_value.toStdString()).c_str();
                 } break;
+                case SETTING_VUID_FILTER: {
+                    const QJsonValue& json_value_options = json_setting.value("options");
+                    assert(json_value_options != QJsonValue::Undefined);
+                    assert(json_value_options.isArray());
+                    const QJsonArray& json_value_array = json_value_options.toArray();
+                    for (int i = 0, n = json_value_array.size(); i < n; ++i) {
+                        setting.enum_values.append(json_value_array[i].toString());
+                    }
+                } break;
                 case SETTING_LOAD_FILE:
                 case SETTING_SAVE_FOLDER:
                 case SETTING_BOOL:
                 case SETTING_BOOL_NUMERIC:
-                case SETTING_VUID_FILTER:
                 case SETTING_STRING:
                     break;
                 default:

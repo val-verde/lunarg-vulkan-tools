@@ -20,6 +20,16 @@
 
 #include "layer_setting.h"
 
+const LayerSetting* GetSetting(const std::vector<LayerSetting>& settings, const char* key) {
+    for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
+        if (settings[i].key == key) {
+            return &settings[i];
+        }
+    }
+
+    return nullptr;
+}
+
 LayerSetting* FindSetting(std::vector<LayerSetting>& settings, const char* key) {
     for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
         if (settings[i].key == key) {

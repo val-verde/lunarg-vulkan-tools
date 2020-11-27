@@ -213,21 +213,10 @@ void Configurator::LoadAllConfigurations() {
     // If this is the first time, we need to create the initial set of
     // configuration files.
     if (environment.first_run) {
-        // Delete all the *.json files in the storage folder
-        QDir dir(path.GetPath(PATH_CONFIGURATION));
-        dir.setFilter(QDir::Files | QDir::NoSymLinks);
-        dir.setNameFilters(QStringList() << "*.json");
-        QFileInfoList configuration_files = dir.entryInfoList();
-
-        // Loop through all the configurations found and remove them
-        for (int i = 0, n = configuration_files.size(); i < n; i++) {
-            QFileInfo info = configuration_files.at(i);
-            if (info.absoluteFilePath().contains("applist.json")) continue;
-            remove(info.filePath().toUtf8().constData());
-        }
+        RemoveConfigurationFiles();
 
         for (std::size_t i = 0, n = countof(default_configurations); i < n; ++i) {
-            if (!(default_configurations[i].platform_flags & VKC_PLATFORM)) continue;
+            if (!(default_configurations[i].platform_flags & (1 << VKC_PLATFORM))) continue;
 
             // Search the list of loaded configurations
             const QString file = QString(":/resourcefiles/configurations/") + default_configurations[i].name + ".json";
@@ -265,6 +254,21 @@ void Configurator::LoadAllConfigurations() {
     }
 
     RefreshConfiguration();
+}
+
+void Configurator::RemoveConfigurationFiles() {
+    // Delete all the *.json files in the storage folder
+    QDir dir(path.GetPath(PATH_CONFIGURATION));
+    dir.setFilter(QDir::Files | QDir::NoSymLinks);
+    dir.setNameFilters(QStringList() << "*.json");
+    QFileInfoList configuration_files = dir.entryInfoList();
+
+    // Loop through all the configurations found and remove them
+    for (int i = 0, n = configuration_files.size(); i < n; i++) {
+        QFileInfo info = configuration_files.at(i);
+        if (info.absoluteFilePath().contains("applist.json")) continue;
+        remove(info.filePath().toUtf8().constData());
+    }
 }
 
 void Configurator::RemoveConfiguration(const QString &configuration_name) {
@@ -400,19 +404,6 @@ void Configurator::ResetDefaultsConfigurations() {
     SetActiveConfiguration(available_configurations.end());
 
     environment.Reset(Environment::DEFAULT);
-
-    // Delete all the *.json files in the storage folder
-    QDir dir(path.GetPath(PATH_CONFIGURATION));
-    dir.setFilter(QDir::Files | QDir::NoSymLinks);
-    dir.setNameFilters(QStringList() << "*.json");
-    QFileInfoList configuration_files = dir.entryInfoList();
-
-    // Loop through all the profiles found and remove them
-    for (int i = 0; i < configuration_files.size(); i++) {
-        QFileInfo info = configuration_files.at(i);
-        if (info.absoluteFilePath().contains("applist.json")) continue;
-        remove(info.filePath().toUtf8().constData());
-    }
 
     // Now we need to kind of restart everything
     LoadAllConfigurations();

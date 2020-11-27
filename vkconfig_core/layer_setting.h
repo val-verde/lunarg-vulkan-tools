@@ -40,4 +40,5 @@ struct LayerSetting {
     QString default_value;  // Default value as a string
 };
 
+const LayerSetting* GetSetting(const std::vector<LayerSetting>& settings, const char* key);
 LayerSetting* FindSetting(std::vector<LayerSetting>& settings, const char* key);

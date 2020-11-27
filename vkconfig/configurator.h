@@ -70,6 +70,7 @@ class Configurator {
     void SetActiveConfiguration(const QString& configuration_name);
     void RefreshConfiguration();
     void RemoveConfiguration(const QString& configuration_name);
+    void RemoveConfigurationFiles();
     bool HasActiveConfiguration() const;
 
    private:

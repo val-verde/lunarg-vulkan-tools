@@ -255,7 +255,10 @@ void SettingsTreeManager::BuildKhronosTree(Parameter &parameter) {
         mute_message_item->setText(0, "Mute Message VUIDs");
         _validation_tree_item->addChild(mute_message_item);
 
-        _vuid_search_widget = new VUIDSearchWidget(layer_setting.default_value);
+        const LayerSetting *layer_setting_vuid = GetSetting(validation_layer->settings, "message_id_filter");
+        assert(layer_setting_vuid);
+
+        _vuid_search_widget = new VUIDSearchWidget(layer_setting_vuid->enum_values, layer_setting.default_value);
         next_line = new QTreeWidgetItem();
         next_line->setSizeHint(0, QSize(0, 28));
         mute_message_item->addChild(next_line);
