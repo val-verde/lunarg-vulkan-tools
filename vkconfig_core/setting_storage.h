@@ -20,19 +20,13 @@
 
 #pragma once
 
-#include "platform.h"
-#include "setting_storage.h"
-
+#include <string>
 #include <vector>
 
-struct LayerPreset {
-    int preset_index;
-    std::string label;
-    std::string description;
-    int platform_flags;
-    StatusType status_type;
-    std::string editor_state;
-    std::vector<SettingStorage> settings;
+// TODO: replace with SettingValue
+struct SettingStorage {
+    std::string key;
+    std::string value;
 };
 
-const LayerPreset* GetPreset(const std::vector<LayerPreset>& presets, int preset_index);
+SettingStorage* FindSettingStorage(std::vector<SettingStorage>& setting_storages, const char* key);

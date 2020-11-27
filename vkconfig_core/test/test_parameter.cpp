@@ -263,7 +263,7 @@ TEST(test_parameter, find_setting) {
 }
 
 TEST(test_parameter, apply_settings) {
-    LayerSettingValue preset_setting;
+    SettingStorage preset_setting;
     preset_setting.key = "A";
     preset_setting.value = "preset value";
 

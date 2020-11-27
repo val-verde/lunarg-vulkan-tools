@@ -25,57 +25,65 @@
 #include <QJsonObject>
 #include <QVariant>
 
+#include <string>
 #include <vector>
 
 class SettingValue {
    public:
+    SettingValue() {}
+    SettingValue(const char* key, const QVariant& value);
+    SettingValue(const char* key, const std::vector<QVariant>& value);
+
     bool Load(const char* key, const SettingType type, const QJsonObject& json_object);
     bool Save(const char* key, const SettingType type, QJsonObject& json_object) const;
 
+    const char* Key() const;
+
+    bool Empty() const;
+
+    std::size_t Size() const;
+
     template <typename T>
-    void push_back(const T& default_value) {
-        this->data.push_back(default_value);
+    void Append(const T& value) {
+        this->setting_value.push_back(value);
     }
 
-    bool empty() const { return this->data.empty(); }
-
-    std::size_t size() const { return this->data.size(); }
-
     template <typename T>
-    bool remove(const T& default_value) {
-        if (this->data.empty()) return false;
+    bool Remove(const T& value) {
+        if (this->setting_value.empty()) return false;
 
         std::vector<QVariant> new_data;
-        new_data.reserve(this->data.size() - 1);
+        new_data.reserve(this->setting_value.size() - 1);
 
         bool result = false;
-        for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
-            if (this->data[i] == default_value) {
+        for (std::size_t i = 0, n = this->setting_value.size(); i < n; ++i) {
+            if (this->setting_value[i] == value) {
                 result = true;
                 continue;
             }
 
-            new_data.push_back(this->data[i]);
+            new_data.push_back(this->setting_value[i]);
         }
 
-        if (result) std::swap(this->data, new_data);
+        if (result) std::swap(this->setting_value, new_data);
 
         return result;
     }
 
     template <typename T>
-    bool has(const T& default_value) {
-        for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
-            if (this->data[i] == default_value) return true;
+    bool Has(const T& value) {
+        for (std::size_t i = 0, n = this->setting_value.size(); i < n; ++i) {
+            if (this->setting_value[i] == value) return true;
         }
         return false;
     }
 
-    QVariant& operator[](std::size_t i) { return this->data[i]; }
-    const QVariant& operator[](std::size_t i) const { return this->data[i]; }
+    QVariant& operator[](std::size_t i) { return this->setting_value[i]; }
+    const QVariant& operator[](std::size_t i) const { return this->setting_value[i]; }
 
    private:
-    std::vector<QVariant> data;
+    std::string setting_key;
+    std::vector<QVariant> setting_value;
 };
 
 bool operator==(const SettingValue& l, const SettingValue& r);

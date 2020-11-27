@@ -287,7 +287,7 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
             for (int setting_index = 0, setting_count = json_setting_array.size(); setting_index < setting_count; ++setting_index) {
                 const QJsonObject& json_setting_object = json_setting_array[setting_index].toObject();
 
-                LayerSettingValue setting_value;
+                SettingStorage setting_value;
                 setting_value.key = ReadStringValue(json_setting_object, "key");
                 setting_value.value = ReadString(json_setting_object, "value");
 

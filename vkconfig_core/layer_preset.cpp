@@ -20,16 +20,6 @@
 
 #include "layer_preset.h"
 
-LayerSettingValue* FindSetting(LayerPreset& preset, const char* key) {
-    for (std::size_t i = 0, n = preset.settings.size(); i < n; ++i) {
-        if (preset.settings[i].key == key) {
-            return &preset.settings[i];
-        }
-    }
-
-    return nullptr;
-}
-
 const LayerPreset* GetPreset(const std::vector<LayerPreset>& presets, int preset_index) {
     for (std::size_t i = 0, n = presets.size(); i < n; ++i) {
         if (presets[i].preset_index == preset_index) {

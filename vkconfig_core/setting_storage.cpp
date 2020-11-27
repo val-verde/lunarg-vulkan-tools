@@ -18,21 +18,14 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#pragma once
-
-#include "platform.h"
 #include "setting_storage.h"
 
-#include <vector>
+SettingStorage* FindSettingStorage(std::vector<SettingStorage>& setting_storages, const char* key) {
+    for (std::size_t i = 0, n = setting_storages.size(); i < n; ++i) {
+        if (setting_storages[i].key == key) {
+            return &setting_storages[i];
+        }
+    }
 
-struct LayerPreset {
-    int preset_index;
-    std::string label;
-    std::string description;
-    int platform_flags;
-    StatusType status_type;
-    std::string editor_state;
-    std::vector<SettingStorage> settings;
-};
-
-const LayerPreset* GetPreset(const std::vector<LayerPreset>& presets, int preset_index);
+    return nullptr;
+}

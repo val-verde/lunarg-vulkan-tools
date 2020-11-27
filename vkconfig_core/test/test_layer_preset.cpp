@@ -38,11 +38,11 @@ TEST(test_layer_preset, get_preset) {
 }
 
 TEST(test_layer_preset, find_setting) {
-    LayerSettingValue value_a;
+    SettingStorage value_a;
     value_a.key = "A";
-    LayerSettingValue value_b;
+    SettingStorage value_b;
     value_b.key = "B";
-    LayerSettingValue value_c;
+    SettingStorage value_c;
     value_c.key = "C";
 
     LayerPreset layer_preset;
@@ -50,6 +50,6 @@ TEST(test_layer_preset, find_setting) {
     layer_preset.settings.push_back(value_b);
     layer_preset.settings.push_back(value_c);
 
-    EXPECT_STREQ("B", FindSetting(layer_preset, "B")->key.c_str());
-    EXPECT_EQ(nullptr, FindSetting(layer_preset, "D"));
+    EXPECT_STREQ("B", FindSettingStorage(layer_preset.settings, "B")->key.c_str());
+    EXPECT_EQ(nullptr, FindSettingStorage(layer_preset.settings, "D"));
 }

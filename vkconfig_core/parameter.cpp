@@ -42,7 +42,7 @@ bool ApplySettings(Parameter& parameter, const LayerPreset& preset) {
         LayerSetting& layer_setting = parameter.settings[i];
 
         for (std::size_t j = 0, m = preset.settings.size(); j < m; ++j) {
-            const LayerSettingValue& preset_setting = preset.settings[j];
+            const SettingStorage& preset_setting = preset.settings[j];
 
             if (layer_setting.key == preset_setting.key.c_str()) {
                 layer_setting.default_value = preset_setting.value.c_str();
